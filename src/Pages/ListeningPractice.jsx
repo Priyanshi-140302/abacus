@@ -1,10 +1,45 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
 import profile from '../assets/images/profile.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+const URL = import.meta.env.VITE_URL;
 
 const ListeningPractice = () => {
     const navigate = useNavigate();
+
+    const [data, setData] = useState();
+    const [page, setPage] = useState(1);
+
+    const getData = async () => {
+        try {
+            const token = sessionStorage.getItem('token');
+
+            const response = await axios.get(`${URL}/listening-question-categories`, {
+                params: { per_page: page }, // query param
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                setData(response.data); // Axios auto-parses JSON
+            } else {
+                console.error('Failed to fetch:', response.status);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        getData();
+    }, [])
+
+    console.log(data)
 
     return (
         <>

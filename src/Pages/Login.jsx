@@ -1,14 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '../assets/images/abacusLogo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+const URL = import.meta.env.VITE_URL;
+
 
 const Login = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [formErrors, setFormErrors] = useState({ username: '', password: '' });
+
+    const handleInput = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+
+        // Clear error on input
+        setFormErrors(prev => ({
+            ...prev,
+            [e.target.name]: ''
+        }));
+    };
+
+    
+    useEffect(() => {
+        const token = sessionStorage.getItem('token');
+        if (token) {
+            const confirmLogout = window.confirm('You are already logged in. Do you want to logout?');
+            if (confirmLogout) {
+                sessionStorage.clear();
+            } else {
+                navigate('/home');
+            }
+        }
+    }, []);
+
+    const validate = () => {
+        const errors = {};
+        if (!formData.username.trim()) {
+            errors.username = 'Username is required';
+        }
+        //  else if (!/\S+@\S+\.\S+/.test(formData.username)) {
+        //     errors.username = 'Enter a valid email address';
+        // }
+
+        if (!formData.password.trim()) {
+            errors.password = 'Password is required';
+        }
+        // else if (formData.password.length < 6) {
+        //     errors.password = 'Password must be at least 6 characters';
+        // }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!validate()) return;
+
+        try {
+            const bodyFormData = new FormData();
+            bodyFormData.append('username', formData.username);
+            bodyFormData.append('password', formData.password);
+
+            const response = await fetch(`${URL}/studentLogin`, {
+                method: 'POST',
+                body: bodyFormData,
+            });
+
+            const data = await response.json();
+
+            if (data.status == 'true') {
+                alert('Login successful!');
+                sessionStorage.setItem('token', data?.token);
+                sessionStorage.setItem('data', JSON.stringify(data?.response?.user_data));
+                navigate('/home');
+            } else {
+                alert(data.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    };
 
     const togglePassword = (e) => {
-        e.preventDefault(); // prevent form submit on button click
+        e.preventDefault();
         setShowPassword(prev => !prev);
     };
+
+
 
     return (
         <>
@@ -27,8 +111,14 @@ const Login = () => {
                                                     type="email"
                                                     className="form-control form-control-lg text-white bg-transparent border-0 border-bottom shadow-none rounded-0"
                                                     id="exampleInputEmail1"
+                                                    name='username'
+                                                    onChange={handleInput}
+                                                    value={formData.username}
                                                     placeholder="Username"
                                                 />
+                                                {formErrors.username && (
+                                                    <small className="text-danger">{formErrors.username}</small>
+                                                )}
                                             </div>
 
                                             <div className="mb-4 position-relative">
@@ -36,6 +126,9 @@ const Login = () => {
                                                     type={showPassword ? 'text' : 'password'}
                                                     className="form-control form-control-lg text-white bg-transparent border-0 border-bottom shadow-none rounded-0"
                                                     id="exampleInputPassword1"
+                                                    name='password'
+                                                    onChange={handleInput}
+                                                    value={formData.password}
                                                     placeholder="Password"
                                                 />
                                                 <button
@@ -49,6 +142,9 @@ const Login = () => {
                                                         <i className="fa-regular fa-eye text-white" style={{ margin: '15px' }}></i>
                                                     )}
                                                 </button>
+                                                {formErrors.password && (
+                                                    <small className="text-danger">{formErrors.password}</small>
+                                                )}
                                             </div>
 
                                             <div className="mb-5 form-check">
@@ -62,7 +158,7 @@ const Login = () => {
                                                 </label>
                                             </div>
 
-                                            <Link to="/home" className="btn btn-login btn-lg w-100 rounded-pill fw-semibold mb-4">
+                                            <Link to="/home" className="btn btn-login btn-lg w-100 rounded-pill fw-semibold mb-4" onClick={handleSubmit}>
                                                 Log in
                                             </Link>
 
