@@ -17,7 +17,7 @@ function App() {
 
   return (
     <>
-      {/* <BrowserRouter basename="/abacus">
+      <BrowserRouter basename="/abacus">
         <Routes>
           <Route path='/' element={<Login />} />
           <Route path='/home' element={<PrivateRoute><Home /></PrivateRoute>} />
@@ -28,22 +28,7 @@ function App() {
           <Route path='/trial-question' element={<PrivateRoute><TrialQuestions2 /></PrivateRoute>} />
           <Route path='/congratulations' element={<PrivateRoute><Congratulations /></PrivateRoute>} />
           <Route path='/competition-questions' element={<PrivateRoute><CompetitionQuestions /></PrivateRoute>} />
-        </Routes>
-      </BrowserRouter> */}
-
-
-      <BrowserRouter basename="/abacus">
-        <Routes>
-          <Route path='/' element={<Login />} />
-          <Route path='/home' element={<Home />} />
-          <Route path='/listening-practice' element={<ListeningPractice />} />
-          <Route path='/recent-played' element={<RecentPlayed />} />
-          <Route path='/termsandconditions' element={<TermsConditions />} />
-          <Route path='/trial-questions' element={<TrialQuestions />} />
-          <Route path='/trial-question' element={<TrialQuestions2 />} />
-          <Route path='/congratulations' element={<Congratulations />} />
-          <Route path='/competition-questions' element={<CompetitionQuestions />} />
-          <Route path='/profile' element={<Profile />} />
+          <Route path='/profile' element={<PrivateRoute><Profile /></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
     </>

@@ -39,7 +39,7 @@ const ListeningPractice = () => {
         getData();
     }, [])
 
-    console.log(data)
+
 
     return (
         <>
@@ -64,86 +64,24 @@ const ListeningPractice = () => {
                 <div className="container-fluid">
                     <div className="container">
                         <div className="row py-4">
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body py-2 d-flex justify-content-between align-items-center">
-                                        <h6 className="text-000000 fw-semibold mb-0 fs-22">1-2D10R</h6>
-                                        <Link to='/recent-played' className="btn btn-pink rounded-pill fs-20">ENTER</Link>
-                                    </div>
-                                </div>
-                            </div>
+
+                            {data?.data?.map((val, index) => {
+                                return (
+                                    <>
+                                        <div key={index} className="col-12 col-md-6 col-xl-4 mb-3">
+                                            <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
+                                                <div className="card-body py-2 d-flex justify-content-between align-items-center">
+                                                    <h6 className="text-000000 fw-semibold mb-0 fs-22">{val?.category_id}</h6>
+                                                    <Link to={`/recent-played/${val?.category_id}`} className="btn btn-pink rounded-pill fs-20">ENTER</Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                            })}
+
+
+
                         </div>
                     </div>
                 </div>
