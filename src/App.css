@@ -322,3 +322,10 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 /* trialQuestion-page end */
+
+
+.profile-page {
+  .custom-gradient {
+    background: #EBA352;
+  }
+}

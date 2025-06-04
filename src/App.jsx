@@ -11,6 +11,7 @@ import TrialQuestions2 from './Pages/TrialQuestions2'
 import Congratulations from './Pages/Congratulations'
 import CompetitionQuestions from './Pages/CompetitionQuestions'
 import PrivateRoute from './components/PrivateRoute';
+import Profile from './Pages/Profile'
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
           <Route path='/trial-question' element={<TrialQuestions2 />} />
           <Route path='/congratulations' element={<Congratulations />} />
           <Route path='/competition-questions' element={<CompetitionQuestions />} />
+          <Route path='/profile' element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </>
