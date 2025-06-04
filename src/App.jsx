@@ -22,7 +22,7 @@ function App() {
           <Route path='/' element={<Login />} />
           <Route path='/home' element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path='/listening-practice' element={<PrivateRoute><ListeningPractice /></PrivateRoute>} />
-          <Route path='/recent-played' element={<PrivateRoute><RecentPlayed /></PrivateRoute>} />
+          <Route path='/recent-played/:id' element={<PrivateRoute><RecentPlayed /></PrivateRoute>} />
           <Route path='/termsandconditions' element={<PrivateRoute><TermsConditions /></PrivateRoute>} />
           <Route path='/trial-questions' element={<PrivateRoute><TrialQuestions /></PrivateRoute>} />
           <Route path='/trial-question' element={<PrivateRoute><TrialQuestions2 /></PrivateRoute>} />

@@ -1,10 +1,43 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
 import profile from '../assets/images/profile.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+const URL = import.meta.env.VITE_URL;
 
 const Profile = () => {
     const navigate = useNavigate();
+
+
+    const [data, setData] = useState();
+
+    const getData = async () => {
+        try {
+            const token = sessionStorage.getItem('token');
+
+            const response = await axios.get(`${URL}/user`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                setData(response.data); // Axios auto-parses JSON
+            } else {
+                console.error('Failed to fetch:', response.status);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        getData();
+    }, [])
+
 
     return (
         <>
@@ -53,12 +86,12 @@ const Profile = () => {
                                             <label htmlFor="name" className="form-label fw-semibold text-dark fs-5">
                                                 <i className="bi bi-person-fill text-primary me-1"></i> Name:
                                             </label>
-                                            <h2 className="form-control fs-3 fw-bolder rounded-4">John Doe</h2>
+                                            <h2 className="form-control fs-3 fw-bolder rounded-4">{data?.username}</h2>
                                         </div>
                                         <div className="pt-3 border-top mt-4">
-                                            <button className="btn btn-outline-danger rounded-pill py-2 w-100 fw-semibold">
+                                            <Link to="/" className="btn btn-outline-danger rounded-pill py-2 w-100 fw-semibold">
                                                 <i className="bi bi-box-arrow-right me-1"></i> Logout
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
