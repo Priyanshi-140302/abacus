@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import profile from '../assets/images/profile.png';
+
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 const URL = import.meta.env.VITE_URL;
+import Header from '../components/Header';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -42,31 +43,9 @@ const Profile = () => {
     return (
         <>
             <div className="main-container bg-theme profile-page">
-                <div className="container-fluid header">
-                    <div className="container">
-                        <div className="row py-3 bg-stars">
-                            <div className="col-9 d-flex align-items-center">
-                                <div className="d-flex align-items-center text-white fw-semibold">
-                                    <h5 className="me-2 mb-0" onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
-                                        <i class="fa-solid fa-chevron-left"></i>
-                                    </h5>
-                                    <h6 className="mb-0 fs-22">Profile</h6>
-                                </div>
-                            </div>
-                            <div className="col-3 text-end">
-                                <div class="dropdown">
-                                    <button class="btn profile-btn dropdown-toggle border-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={profile} alt="" className="" />
-                                    </button>
-                                    <ul class="dropdown-menu mt-4 border-0 shadow rounded-4 overflow-hidden">
-                                        <li><Link class="dropdown-item" to="/profile">Profile</Link></li>
-                                        <li><Link class="dropdown-item" to="/">Logout</Link></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
+
+                <Header data={{ title: '', detail: 'Profile', description: '' }} />
                 <div className="container-fluid">
                     <div className="container py-5">
                         <div className="row g-4">

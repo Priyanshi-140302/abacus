@@ -1,34 +1,15 @@
-import React from 'react'
-import profile from '../assets/images/profile.png';
-import listeningCardImg from '../assets/images/listeningCardImg.png';
-import competitionCardImg from '../assets/images/competitionCardImg.png';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header';
+
 
 const Home = () => {
+    const data = sessionStorage.getItem('data');
+    const detail = JSON.parse(data)
+
     return (
         <>
             <div className="main-container bg-theme">
-                <div className="container-fluid header">
-                    <div className="container">
-                        <div className="row py-3 bg-stars">
-                            <div className="col-9">
-                                <h5 className="text-white fw-semibold mb-1">Hello,</h5>
-                                <h4 className="text-white fw-bold mb-0">Rohit Sharma </h4>
-                            </div>
-                            <div className="col-3 text-end">
-                                <div class="dropdown">
-                                    <button class="btn profile-btn dropdown-toggle border-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={profile} alt="" className="" />
-                                    </button>
-                                    <ul class="dropdown-menu mt-4 border-0 shadow rounded-4 overflow-hidden">
-                                        <li><Link class="dropdown-item" to="/profile">Profile</Link></li>
-                                        <li><Link class="dropdown-item" to="/">Logout</Link></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <Header data={{ title:'Hello' ,detail:detail?.username, description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
                         <div className="row py-4">

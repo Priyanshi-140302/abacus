@@ -23,7 +23,7 @@ const Login = () => {
         }));
     };
 
-    
+
     useEffect(() => {
         const token = sessionStorage.getItem('token');
         if (token) {

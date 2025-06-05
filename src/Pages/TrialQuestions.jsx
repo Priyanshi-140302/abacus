@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import profile from '../assets/images/profile.png';
+
 import tandcIcon from '../assets/images/t&cIcon.png';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
+import Header from '../components/Header';
 
 const TrialQuestions = () => {
     const [show, setShow] = useState(false);
@@ -36,23 +37,7 @@ const TrialQuestions = () => {
     return (
         <>
             <div className="main-container bg-theme trialQuestion-page">
-                <div className="container-fluid header">
-                    <div className="container">
-                        <div className="row py-3 bg-stars">
-                            <div className="col-9 d-flex align-items-center">
-                                <div className="d-flex align-items-center text-white fw-semibold">
-                                    <h5 className="me-2 mb-0" onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
-                                        <i class="fa-solid fa-chevron-left"></i>
-                                    </h5>
-                                    <h6 className="mb-0 fs-22">Competition Questions</h6>
-                                </div>
-                            </div>
-                            <div className="col-3 text-end">
-                                <img src={profile} alt="" className="" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <Header data={{ title: '', detail: 'Competition Questions', description: '' }} />
                 <div className="container-fluid bg-white">
                     <div className="container">
                         <div className="d-flex align-items-center py-2">

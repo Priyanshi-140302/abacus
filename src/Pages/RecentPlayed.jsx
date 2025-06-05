@@ -1,22 +1,76 @@
-import React, { useState } from 'react';
-import profile from '../assets/images/profile.png';
+import { useEffect, useState } from 'react'
+import axios from 'axios';
 import voiceFrequencyImg from '../assets/images/voiceFrequencyImg.png';
 import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import Header from '../components/Header';
+const URL = import.meta.env.VITE_URL;
 
 const RecentPlayed = () => {
     const [show, setShow] = useState(false);
     const [answer, setAnswer] = useState('');
     const [result, setResult] = useState(null);
+    const { id } = useParams()
+
+    const [currentQuestion, setCurrentQuestion] = useState(null);
+
+    const [speechStates, setSpeechStates] = useState({});
+    const updateSpeechState = (id, updates) => {
+        setSpeechStates(prev => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                ...updates
+            }
+        }));
+    };
+
+
     const navigate = useNavigate();
 
-    const handleOpen = () => {
+    const [data, setData] = useState();
+    const [page, setPage] = useState(2);
+
+    const getData = async () => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const bodyFormData = new FormData();
+            bodyFormData.append('category_id', id);
+
+            const response = await axios.post(`${URL}/listening-questions`,
+                bodyFormData, // body
+                {
+                    params: { page: page }, // query param
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                setData(response.data);
+            } else {
+                console.error('Failed to fetch:', response.status);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+    useEffect(() => {
+        getData();
+    }, [])
+
+
+    const handleOpen = (question) => {
+        setCurrentQuestion(question);
         setShow(true);
         setAnswer('');
         setResult(null);
     };
+
 
     const handleClose = () => {
         setShow(false);
@@ -25,12 +79,18 @@ const RecentPlayed = () => {
     };
 
     const handleSubmit = () => {
-        if (answer.trim() === '123') {
+        if (!currentQuestion) return;
+
+        const userAnswer = answer.trim();
+        const correctAnswer = currentQuestion.answer?.trim();
+
+        if (userAnswer === correctAnswer) {
             setResult('correct');
         } else {
             setResult('wrong');
         }
     };
+
 
     const handleReattempt = () => {
         setAnswer('');
@@ -40,186 +100,67 @@ const RecentPlayed = () => {
     return (
         <>
             <div className="main-container bg-theme ">
-                <div className="container-fluid header">
-                    <div className="container">
-                        <div className="row py-3 bg-stars">
-                            <div className="col-9 d-flex align-items-center">
-                                <div className="d-flex align-items-center text-white fw-semibold">
-                                    <h5 className="me-2 mb-0" onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
-                                        <i class="fa-solid fa-chevron-left"></i>
-                                    </h5>
-                                    <h6 className="mb-0 fs-22">Recent Played Q. No : 1</h6>
-                                </div>
-                            </div>
-                            <div className="col-3 text-end">
-                                <img src={profile} alt="" className="" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <Header data={{ title: '', detail: 'recent-played', description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
                         <div className="row py-4">
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 1</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 2</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 3</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 4</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
+
+                            {data?.data?.map((item, index) => {
+                                const state = speechStates[item.id] || { isPaused: false, isSpeaking: false };
+
+                                const speakText = (text) => {
+                                    window.speechSynthesis.cancel();
+                                    const utterance = new SpeechSynthesisUtterance(text);
+                                    utterance.lang = 'en-US';
+
+                                    utterance.onend = () => updateSpeechState(item.id, { isSpeaking: false, isPaused: false });
+
+                                    updateSpeechState(item.id, { isSpeaking: true, isPaused: false });
+                                    window.speechSynthesis.speak(utterance);
+                                };
+
+                                const handleReady = () => speakText('Ready');
+                                const handleQuestion = () => speakText(item.question);
+                                const handleStop = () => {
+                                    window.speechSynthesis.pause();
+                                    updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
+                                };
+                                const handleResume = () => {
+                                    window.speechSynthesis.resume();
+                                    updateSpeechState(item.id, { isPaused: false, isSpeaking: true });
+                                };
+
+                                return (
+                                    <div key={item.id} className="col-12 col-md-6 col-xl-4 mb-3">
+                                        <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
+                                            <div className="card-body p-2">
+                                                <div className="d-flex justify-content-between align-items-center mb-3">
+                                                    <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
+                                                    <img src={voiceFrequencyImg} alt="" />
+                                                </div>
+                                                <div className="d-flex flex-wrap justify-content-between align-items-center">
+                                                    <button className="btn btn-yellow rounded-pill fs-20 mb-2" onClick={handleReady}>Ready</button>
+                                                    <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion}>Question</button>
+                                                    <button
+                                                        className="btn btn-green rounded-pill fs-20 mb-2"
+                                                        onClick={() => handleOpen(item)}  // pass question item
+                                                    >
+                                                        Answer
+                                                    </button>
+
+                                                    {state.isPaused ? (
+                                                        <button className="btn btn-info rounded-pill fs-20 mb-2" onClick={handleResume}>Resume</button>
+                                                    ) : (
+                                                        <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop}>Stop</button>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 5</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 6</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 7</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 8</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 9</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-3">
-                                <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
-                                    <div className="card-body p-2">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : 10</h6>
-                                            <img src={voiceFrequencyImg} alt="" className="" />
-                                        </div>
-                                        <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                            <button className="btn btn-yellow rounded-pill fs-20 mb-2">Ready</button>
-                                            <button className="btn btn-purple rounded-pill fs-20 mb-2">Question</button>
-                                            <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={handleOpen}>Answer</button>
-                                            <button className="btn btn-pink rounded-pill fs-20 mb-2">Stop</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                );
+                            })}
+
+
                         </div>
                     </div>
                 </div>
@@ -270,7 +211,9 @@ const RecentPlayed = () => {
                                     <img src={crossGif} alt="" className="w-75 mb-2" />
                                     <h2 className="fw-bold mb-4">
                                         <span className="text-F81355">Correct Answer is </span>
-                                        <span className="text-0FB1A1">5000</span></h2>
+                                        <span className="text-0FB1A1">{currentQuestion?.answer}</span>
+                                    </h2>
+
                                     <div className="">
                                         <button className="btn btn-submit w-100 mb-3" onClick={handleReattempt}>
                                             Re-attempt this
