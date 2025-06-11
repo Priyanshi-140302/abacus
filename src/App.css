@@ -80,6 +80,7 @@
 button:disabled {
   opacity: 0.6;
   pointer-events: none;
+
 }
 
 .inactive-card {
@@ -87,6 +88,12 @@ button:disabled {
   pointer-events: auto;
   /* still clickable for activation */
   transition: all 0.3s ease;
+
+  button {
+    color: #505050 !important;
+    background-color: #dadada !important;
+    border: 1px solid #dadada !important;
+  }
 }
 
 .active-card {
@@ -456,3 +463,40 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 /* Sound-Wave-css end */
+
+
+/* Pagination start */
+.pagination-wrapper {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.pagination-btn {
+  background-color: #f81355;
+  color: white;
+  border: none;
+  padding: 8px 13px;
+  font-size: 18px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-btn:hover {
+  background-color: #eba352;
+  transform: scale(1.1);
+}
+
+.pagination-btn:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.page-info {
+  color: #13d3c1;
+  font-weight: bold;
+}
+
+/* Pagination end */

@@ -70,21 +70,23 @@ const ListeningPractice = () => {
 
                         </div>
 
-                        <div className="d-flex justify-content-center my-4">
+                        <div className="d-flex justify-content-center align-items-center py-4 pagination-wrapper">
                             <button
-                                className="btn btn-secondary mx-2"
+                                className="pagination-btn mx-2"
                                 disabled={page === 1}
                                 onClick={() => setPage(prev => Math.max(prev - 1, 1))}
                             >
-                                Previous
+                                <i className="fa-solid fa-angles-left"></i>
                             </button>
-                            <span className="fs-5 align-self-center">Page {page} of {totalPages}</span>
+
+                            <span className="page-info fs-5 mx-3">Page <strong>{page}</strong> of {totalPages}</span>
+
                             <button
-                                className="btn btn-secondary mx-2"
+                                className="pagination-btn mx-2"
                                 disabled={page === totalPages}
                                 onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
                             >
-                                Next
+                                <i className="fa-solid fa-angles-right"></i>
                             </button>
                         </div>
 
