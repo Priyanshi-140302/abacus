@@ -77,6 +77,24 @@
   font-size: 20px;
 }
 
+button:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.inactive-card {
+  filter: grayscale(50%);
+  pointer-events: auto;
+  /* still clickable for activation */
+  transition: all 0.3s ease;
+}
+
+.active-card {
+  opacity: 1;
+  filter: none;
+  transition: all 0.3s ease;
+}
+
 /* Button-color end */
 
 /* Border-color start */
@@ -208,6 +226,10 @@
     background-repeat: no-repeat;
     background-position: right;
   }
+
+  .dropdown-toggle::after {
+    display: none;
+  }
 }
 
 /* Header end */
@@ -329,3 +351,108 @@ input[type=number]::-webkit-inner-spin-button {
     background: #EBA352;
   }
 }
+
+/* Sound-Wave-css start */
+@keyframes quiet {
+  25% {
+    transform: scaleY(.6);
+  }
+
+  50% {
+    transform: scaleY(.4);
+  }
+
+  75% {
+    transform: scaleY(.8);
+  }
+}
+
+@keyframes normal {
+  25% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(.4);
+  }
+
+  75% {
+    transform: scaleY(.6);
+  }
+}
+
+@keyframes loud {
+  25% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(.4);
+  }
+
+  75% {
+    transform: scaleY(1.2);
+  }
+}
+
+.boxContainer {
+  display: flex;
+  justify-content: space-between;
+  height: 18px;
+  --boxSize: 3px;
+  --gutter: 9px;
+  width: calc((var(--boxSize) + var(--gutter)) * 5);
+}
+
+.box {
+  transform: scaleY(.4);
+  height: 100%;
+  width: var(--boxSize);
+  background: #eba352;
+  animation-duration: 1.2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  border-radius: 8px;
+}
+
+.box1 {
+  animation-name: quiet;
+}
+
+.box2 {
+  animation-name: normal;
+}
+
+.box3 {
+  animation-name: quiet;
+}
+
+.box4 {
+  animation-name: loud;
+}
+
+.box5 {
+  animation-name: quiet;
+}
+
+.box6 {
+  animation-name: quiet;
+}
+
+.box7 {
+  animation-name: normal;
+}
+
+.box8 {
+  animation-name: quiet;
+}
+
+.box9 {
+  animation-name: loud;
+}
+
+.box10 {
+  animation-name: quiet;
+}
+
+/* Sound-Wave-css end */
