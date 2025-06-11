@@ -5,13 +5,14 @@ import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import SoundWave from '../components/SoundWave';
 const URL = import.meta.env.VITE_URL;
 
 const RecentPlayed = () => {
     const [show, setShow] = useState(false);
     const [answer, setAnswer] = useState('');
     const [result, setResult] = useState(null);
-
+    const [activeCardId, setActiveCardId] = useState(null);
 
 
     const { id } = useParams()
@@ -131,28 +132,33 @@ const RecentPlayed = () => {
                                     updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
                                 };
 
+                                const isActive = item.id === activeCardId;
 
                                 return (
                                     <div key={item.id} className="col-12 col-md-6 col-xl-4 mb-3">
-                                        <div className="card border-0 rounded-4 shadow-sm border-1DE2CF">
+                                        <div
+                                            className={`card border-0 rounded-4 shadow-sm ${isActive ? 'active-card border-1DE2CF' : 'inactive-card'}`}
+                                            onClick={() => setActiveCardId(item.id)} // Whole card is clickable
+                                            style={{ cursor: 'pointer' }}
+                                        >
                                             <div className="card-body p-2">
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
-                                                    <img src={voiceFrequencyImg} alt="" />
+                                                    {/* <img src={voiceFrequencyImg} alt="" /> */}
+                                                    <div className={`${isActive ? 'd-block' : 'd-none'}`}>
+                                                        <SoundWave />
+                                                    </div>
                                                 </div>
                                                 <div className="d-flex flex-wrap justify-content-between align-items-center">
-                                                    <button className="btn btn-yellow rounded-pill fs-20 mb-2" onClick={handleReady}>Ready</button>
-                                                    <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion}>Question</button>
+                                                    <button className="btn btn-yellow rounded-pill fs-20 mb-2" onClick={handleReady} disabled={!isActive} >Ready</button>
+                                                    <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive} >Question</button>
                                                     <button
                                                         className="btn btn-green rounded-pill fs-20 mb-2"
                                                         onClick={() => handleOpen(item)}  // pass question item
-                                                    >
+                                                        disabled={!isActive} >
                                                         Answer
                                                     </button>
-
-                                                    <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop}>Stop</button>
-
-
+                                                    <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop} disabled={!isActive} >Stop</button>
                                                 </div>
                                             </div>
                                         </div>
