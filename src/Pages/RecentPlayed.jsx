@@ -115,13 +115,36 @@ const RecentPlayed = () => {
 
                                 const speakText = (text) => {
                                     window.speechSynthesis.cancel();
+
                                     const utterance = new SpeechSynthesisUtterance(text);
-                                    utterance.lang = 'en-US';
+                                    utterance.lang = 'en-IN'; // Set language to Indian English
+
+                                    // Try to get a voice that matches Indian English
+                                    const voices = window.speechSynthesis.getVoices();
+                                    const indianVoice = voices.find(voice => voice.lang === 'en-IN');
+
+                                    if (indianVoice) {
+                                        utterance.voice = indianVoice;
+                                    } else {
+                                        console.warn('Indian English voice not found, using default voice');
+                                    }
 
                                     utterance.onend = () => updateSpeechState(item.id, { isSpeaking: false, isPaused: false });
+                                    utterance.onerror = (e) => {
+                                        console.error("Speech synthesis error:", e);
+                                        updateSpeechState(item.id, { isSpeaking: false, isPaused: false });
+                                    };
 
                                     updateSpeechState(item.id, { isSpeaking: true, isPaused: false });
-                                    window.speechSynthesis.speak(utterance);
+
+                                    // Wait briefly to ensure voices are loaded
+                                    if (voices.length === 0) {
+                                        window.speechSynthesis.onvoiceschanged = () => {
+                                            speakText(text); // Retry after voices are loaded
+                                        };
+                                    } else {
+                                        window.speechSynthesis.speak(utterance);
+                                    }
                                 };
 
                                 const handleReady = () => speakText('Ready');
