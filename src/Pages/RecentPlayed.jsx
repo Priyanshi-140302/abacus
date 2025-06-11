@@ -3,7 +3,7 @@ import axios from 'axios';
 import voiceFrequencyImg from '../assets/images/voiceFrequencyImg.png';
 import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 const URL = import.meta.env.VITE_URL;
 
@@ -11,6 +11,9 @@ const RecentPlayed = () => {
     const [show, setShow] = useState(false);
     const [answer, setAnswer] = useState('');
     const [result, setResult] = useState(null);
+
+
+
     const { id } = useParams()
 
     const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -27,10 +30,11 @@ const RecentPlayed = () => {
     };
 
 
-    const navigate = useNavigate();
+
 
     const [data, setData] = useState();
-    const [page, setPage] = useState(2);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1); // to store total pages
 
     const getData = async () => {
         try {
@@ -50,6 +54,7 @@ const RecentPlayed = () => {
 
             if (response.status === 200) {
                 setData(response.data);
+                setTotalPages(response.data.total || 1);
             } else {
                 console.error('Failed to fetch:', response.status);
             }
@@ -61,7 +66,7 @@ const RecentPlayed = () => {
 
     useEffect(() => {
         getData();
-    }, [])
+    }, [page])
 
 
     const handleOpen = (question) => {
@@ -125,10 +130,7 @@ const RecentPlayed = () => {
                                     window.speechSynthesis.pause();
                                     updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
                                 };
-                                const handleResume = () => {
-                                    window.speechSynthesis.resume();
-                                    updateSpeechState(item.id, { isPaused: false, isSpeaking: true });
-                                };
+
 
                                 return (
                                     <div key={item.id} className="col-12 col-md-6 col-xl-4 mb-3">
@@ -148,11 +150,9 @@ const RecentPlayed = () => {
                                                         Answer
                                                     </button>
 
-                                                    {state.isPaused ? (
-                                                        <button className="btn btn-info rounded-pill fs-20 mb-2" onClick={handleResume}>Resume</button>
-                                                    ) : (
-                                                        <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop}>Stop</button>
-                                                    )}
+                                                    <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop}>Stop</button>
+
+
                                                 </div>
                                             </div>
                                         </div>
@@ -162,6 +162,26 @@ const RecentPlayed = () => {
 
 
                         </div>
+
+
+                        <div className="d-flex justify-content-center my-4">
+                            <button
+                                className="btn btn-secondary mx-2"
+                                disabled={page === 1}
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                Previous
+                            </button>
+                            <span className="fs-5 align-self-center">Page {page} of {totalPages}</span>
+                            <button
+                                className="btn btn-secondary mx-2"
+                                disabled={page === totalPages}
+                                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                            >
+                                Next
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>

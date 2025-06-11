@@ -7,8 +7,10 @@ const URL = import.meta.env.VITE_URL;
 const ListeningPractice = () => {
 
 
-    const [data, setData] = useState();
+    const [data, setData] = useState([]);
     const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1); // to store total pages
+
 
     const getData = async () => {
         try {
@@ -24,6 +26,7 @@ const ListeningPractice = () => {
 
             if (response.status === 200) {
                 setData(response.data); // Axios auto-parses JSON
+                setTotalPages(response.data.total || 1);
             } else {
                 console.error('Failed to fetch:', response.status);
             }
@@ -36,7 +39,7 @@ const ListeningPractice = () => {
 
     useEffect(() => {
         getData();
-    }, [])
+    }, [page])
 
 
 
@@ -66,6 +69,25 @@ const ListeningPractice = () => {
 
 
                         </div>
+
+                        <div className="d-flex justify-content-center my-4">
+                            <button
+                                className="btn btn-secondary mx-2"
+                                disabled={page === 1}
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                            >
+                                Previous
+                            </button>
+                            <span className="fs-5 align-self-center">Page {page} of {totalPages}</span>
+                            <button
+                                className="btn btn-secondary mx-2"
+                                disabled={page === totalPages}
+                                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                            >
+                                Next
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>
