@@ -52,11 +52,11 @@ const TrialQuestions = () => {
             const bodyFormData = new FormData();
             bodyFormData.append('question_id', formData.question_id);
             bodyFormData.append('answer', formData.answer);
-
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${URL}/save-answer-listening`, {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer 1|kDIAxH4TfLZXvVjJwV2HdEGujrVRHp2QfRkz4Ki9e48219ce`
+                    Authorization: `Bearer ${token}`
                 },
                 body: bodyFormData,
             });
