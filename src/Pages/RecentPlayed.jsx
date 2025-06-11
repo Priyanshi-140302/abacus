@@ -103,6 +103,17 @@ const RecentPlayed = () => {
         setResult(null);
     };
 
+    const preprocessMathExpression = (expression) => {
+        return expression
+            .replace(/-/g, ' minus ')
+            .replace(/\+/g, ' plus ')
+            .replace(/!/g, '')        // Remove the factorial symbol
+            .replace(/\s+/g, ' ')     // Normalize extra spaces
+            .trim();
+    };
+
+
+
     return (
         <>
             <div className="main-container bg-theme ">
@@ -117,13 +128,12 @@ const RecentPlayed = () => {
                                 const speakText = (text) => {
                                     window.speechSynthesis.cancel();
 
-                                    const utterance = new SpeechSynthesisUtterance(text);
-                                    utterance.lang = 'en-IN'; // Set language to Indian English
+                                    const processedText = preprocessMathExpression(text);  // Clean the input
+                                    const utterance = new SpeechSynthesisUtterance(processedText);
+                                    utterance.lang = 'en-IN';
 
-                                    // Try to get a voice that matches Indian English
                                     const voices = window.speechSynthesis.getVoices();
                                     const indianVoice = voices.find(voice => voice.lang === 'en-IN');
-
                                     if (indianVoice) {
                                         utterance.voice = indianVoice;
                                     } else {
@@ -138,7 +148,6 @@ const RecentPlayed = () => {
 
                                     updateSpeechState(item.id, { isSpeaking: true, isPaused: false });
 
-                                    // Wait briefly to ensure voices are loaded
                                     if (voices.length === 0) {
                                         window.speechSynthesis.onvoiceschanged = () => {
                                             speakText(text); // Retry after voices are loaded
@@ -147,6 +156,7 @@ const RecentPlayed = () => {
                                         window.speechSynthesis.speak(utterance);
                                     }
                                 };
+
 
                                 const handleReady = () => speakText('Ready');
                                 const handleQuestion = () => speakText(item.question);
