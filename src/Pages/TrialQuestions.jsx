@@ -101,11 +101,15 @@ const TrialQuestions = () => {
                     </div>
                 </div>
 
-                {!examStarted ? (
+                {!examStarted ? (<>
                     <div className="container my-5 text-center">
                         <h3>Click the button below to start your exam</h3>
-                        <button className="btn btn-submit mt-3" onClick={handleStartExam}>Start Exam</button>
+                        <button className="btn btn-submit mt-3 p-2" onClick={handleStartExam}>Start Trial Exam</button>
                     </div>
+                    <div className="container my-5 text-center">
+                        <h3>start your exam</h3>
+                        <Link to='/competition-questions' className="btn btn-submit mt-3 p-2" >Start Exam</Link>
+                    </div></>
                 ) : (
                     <div className="container-fluid">
                         <div className="container">
