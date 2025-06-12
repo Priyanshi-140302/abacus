@@ -14,22 +14,6 @@ const CompetitionQuestions = () => {
     const [submitted, setSubmitted] = useState({});
 
 
-    // useEffect(() => {
-    //     const dbRef = ref(database, 'users');
-    //     const unsubscribe = onValue(dbRef, (snapshot) => {
-    //         const data = snapshot.val();
-
-    //         if (data) {
-    //             const formatted = Object.entries(data).map(([id, value]) => ({ id, ...value }));
-    //             setRecords(formatted);
-    //         } else {
-    //             setRecords([]);
-    //         }
-    //     });
-
-    //     return () => unsubscribe();
-    // }, []);
-
     useEffect(() => {
         const dbRef = ref(database, 'users');
         const unsubscribe = onValue(dbRef, (snapshot) => {
@@ -134,6 +118,7 @@ const CompetitionQuestions = () => {
                                 <div className="col-12 col-md-6 col-xl-4 col-xxl-3 mx-auto mb-3" key={item.id}>
                                     <div className="p-3 border rounded bg-light">
                                         <h5>Question ID: {item.question_id}</h5>
+                                        <h5>Answer: {item.answer}</h5>
 
                                         {item.isQuestionShow ? (
                                             <div className="card bg-FFEA9F border-0 rounded-3 shadow-sm mb-3">
