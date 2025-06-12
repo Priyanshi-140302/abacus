@@ -14,6 +14,22 @@ const CompetitionQuestions = () => {
     const [submitted, setSubmitted] = useState({});
 
 
+    // useEffect(() => {
+    //     const dbRef = ref(database, 'users');
+    //     const unsubscribe = onValue(dbRef, (snapshot) => {
+    //         const data = snapshot.val();
+
+    //         if (data) {
+    //             const formatted = Object.entries(data).map(([id, value]) => ({ id, ...value }));
+    //             setRecords(formatted);
+    //         } else {
+    //             setRecords([]);
+    //         }
+    //     });
+
+    //     return () => unsubscribe();
+    // }, []);
+
     useEffect(() => {
         const dbRef = ref(database, 'users');
         const unsubscribe = onValue(dbRef, (snapshot) => {
@@ -21,7 +37,21 @@ const CompetitionQuestions = () => {
 
             if (data) {
                 const formatted = Object.entries(data).map(([id, value]) => ({ id, ...value }));
-                setRecords(formatted);
+
+                setRecords(prevRecords => {
+                    // Check for changes in question_id for same id
+                    formatted.forEach(newItem => {
+                        const oldItem = prevRecords.find(r => r.id === newItem.id);
+                        if (oldItem && oldItem.question_id !== newItem.question_id) {
+                            // reset local states for new question
+                            setUserAnswers(prev => ({ ...prev, [newItem.id]: "" }));
+                            setSubmitted(prev => ({ ...prev, [newItem.id]: false }));
+                            setFeedback(prev => ({ ...prev, [newItem.id]: "" }));
+                            setDisqualified(prev => ({ ...prev, [newItem.id]: false }));
+                        }
+                    });
+                    return formatted;
+                });
             } else {
                 setRecords([]);
             }
@@ -29,6 +59,7 @@ const CompetitionQuestions = () => {
 
         return () => unsubscribe();
     }, []);
+
 
     const handleInputChange = (e, id) => {
         setUserAnswers(prev => ({ ...prev, [id]: e.target.value }));
