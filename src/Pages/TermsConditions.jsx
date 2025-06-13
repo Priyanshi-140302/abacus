@@ -11,7 +11,7 @@ const TermsConditions = () => {
     return (
         <>
             <div className="main-container bg-theme termAndCondition-page">
-                 <Header data={{ title: '', detail: 'Competition Questions', description: '' }} />
+                <Header data={{ title: '', detail: 'Competition Questions', description: '' }} />
                 <div className="container-fluid bg-white">
                     <div className="container">
                         <div className="d-flex align-items-center py-2">
@@ -74,7 +74,7 @@ const TermsConditions = () => {
                                     By clicking "I Agree", you confirm that you have read and accepted all the terms & conditions.
                                 </label>
                             </div>
-                            <Link to="/trial-questions" className="btn btn-agree w-100 rounded-pill fw-semibold">
+                            <Link to="/competition-questions" className="btn btn-agree w-100 rounded-pill fw-semibold">
                                 I AGREE & START EXAM
                             </Link>
                         </div>
