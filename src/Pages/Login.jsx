@@ -74,7 +74,7 @@ const Login = () => {
             const data = await response.json();
 
             if (data.status == 'true') {
-                alert('Login successful!');
+                
                 sessionStorage.setItem('token', data?.token);
                 sessionStorage.setItem('data', JSON.stringify(data?.response?.user_data));
                 sessionStorage.setItem('userId', JSON.stringify(data?.response?.user_data?.student_id));

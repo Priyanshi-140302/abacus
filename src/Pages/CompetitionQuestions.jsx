@@ -67,7 +67,15 @@ const CompetitionQuestions = () => {
         if (!examStarted || !timerDuration) return;
 
         records.forEach((item) => {
-            if (item.isQuestionReady && !submitted[item.id] && !disqualified[item.id]) {
+            const isAnswerBox = item.isAnswerBox; // 🟡 define your condition
+
+            if (
+                isAnswerBox &&
+                !submitted[item.id] &&
+                !disqualified[item.id] &&
+                !timersRef.current[item.id] // only start if not already running
+            ) {
+
                 setCountdowns(prev => ({ ...prev, [item.id]: timerDuration }));
 
                 timersRef.current[item.id] = setInterval(() => {
@@ -77,6 +85,7 @@ const CompetitionQuestions = () => {
                             updated[item.id] -= 1;
                         } else {
                             clearInterval(timersRef.current[item.id]);
+                            delete timersRef.current[item.id];
                             setDisqualified(d => ({ ...d, [item.id]: true }));
                             setFeedback(f => ({
                                 ...f,
@@ -94,8 +103,11 @@ const CompetitionQuestions = () => {
 
         return () => {
             Object.values(timersRef.current).forEach(clearInterval);
+            timersRef.current = {};
         };
-    }, [examStarted, records, timerDuration]);
+    }, [examStarted, records, timerDuration, submitted, disqualified]);
+
+
 
 
 
@@ -207,7 +219,7 @@ const CompetitionQuestions = () => {
                                             )} */}
 
 
-                                            {item.isAnswerBox ? (
+                                            {item.isQuestionReady ? (
                                                 <div className="card bg-FFEA9F border-0 rounded-3 shadow-sm mb-3">
                                                     <div className="card-body p-3">
                                                         <>
@@ -221,14 +233,14 @@ const CompetitionQuestions = () => {
                                                                 placeholder="Enter your answer"
                                                                 disabled={!!submitted[item.id]}
                                                             />
-
-                                                            <button
+                                                            {item.isAnswerBox ? <button
                                                                 className="btn btn-submit rounded-pill w-100"
                                                                 onClick={() => handleSubmit(item.id, item.answer, item.question_id, item.questionType)}
                                                                 disabled={!!submitted[item.id]}
                                                             >
                                                                 Submit
-                                                            </button>
+                                                            </button> : ''}
+
 
 
                                                             {feedback[item.id] && (
