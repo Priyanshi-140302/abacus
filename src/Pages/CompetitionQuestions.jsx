@@ -178,7 +178,7 @@ const CompetitionQuestions = () => {
         const userId = sessionStorage.getItem('userId');
         if (!userId) return;
 
-        const userRef = ref(database, `users/${userId}`);
+        const userRef = ref(database, `disqualifiedUsers/${userId}`);
         update(userRef, { status: 'disqualified' });
     };
 
