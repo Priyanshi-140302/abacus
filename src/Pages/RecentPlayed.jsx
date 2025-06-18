@@ -14,6 +14,7 @@ const RecentPlayed = () => {
     const [result, setResult] = useState(null);
     const [activeCardId, setActiveCardId] = useState(null);
 
+    const [submitted, setSubmitted] = useState({});
 
     const { id } = useParams()
 
@@ -90,12 +91,19 @@ const RecentPlayed = () => {
         const userAnswer = answer.trim();
         const correctAnswer = currentQuestion.answer?.trim();
 
+        // Mark this question as answered
+        setSubmitted(prev => ({
+            ...prev,
+            [currentQuestion.id]: true
+        }));
+
         if (userAnswer === correctAnswer) {
             setResult('correct');
         } else {
             setResult('wrong');
         }
     };
+
 
 
     const handleReattempt = () => {
@@ -170,14 +178,22 @@ const RecentPlayed = () => {
                                 return (
                                     <div key={item.id} className="col-12 col-md-6 col-xl-4 mb-3">
                                         <div
-                                            className={`card border-0 rounded-4 shadow-sm ${isActive ? 'active-card border-1DE2CF' : 'inactive-card border-white'}`}
-                                            onClick={() => setActiveCardId(item.id)} // Whole card is clickable
+                                            className={`card border-0 rounded-4 shadow-sm ${submitted[item.id]
+                                                ? 'border-success border-2' // ✅ Green if answered
+                                                : isActive
+                                                    ? 'border-1DE2CF border-2' // Blue if active
+                                                    : 'border-white'          // Default
+                                                }`}
+                                            onClick={() => setActiveCardId(item.id)}
                                             style={{ cursor: 'pointer' }}
                                         >
+                                            {submitted[item.id] && (
+                                                <span className="badge bg-success position-absolute top-0 end-0 m-2">✔ Answered</span>
+                                            )}
                                             <div className="card-body p-2">
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
-                                                    {/* <img src={voiceFrequencyImg} alt="" /> */}
+
                                                     <div className={`${isActive ? 'd-block' : 'd-none'}`}>
                                                         <SoundWave />
                                                     </div>
@@ -187,7 +203,7 @@ const RecentPlayed = () => {
                                                     <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive} >Question</button>
                                                     <button
                                                         className="btn btn-green rounded-pill fs-20 mb-2"
-                                                        onClick={() => handleOpen(item)}  // pass question item
+                                                        onClick={() => handleOpen(item)}
                                                         disabled={!isActive} >
                                                         Answer
                                                     </button>

@@ -19,6 +19,15 @@ const CompetitionQuestions = () => {
     const timersRef = useRef({});
 
 
+    const [showDisqualifyModal, setShowDisqualifyModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [correctAnswerShown, setCorrectAnswerShown] = useState(null); // To show correct answer in modal
+    const [showPreExamModal, setShowPreExamModal] = useState(false);
+
+
+    const [compitionstart, setCompitionStart] = useState(true);
+    const [compitionend, setCompitionEnd] = useState(true);
+
     useEffect(() => {
         const dbRef = ref(database, 'users');
         const unsubscribe = onValue(dbRef, (snapshot) => {
@@ -118,7 +127,6 @@ const CompetitionQuestions = () => {
 
     const handleSubmit = async (id, correctAnswer, questionId, questionType) => {
         const userAnswer = userAnswers[id];
-
         const isCorrect = parseInt(userAnswer, 10) === correctAnswer;
 
         try {
@@ -138,18 +146,24 @@ const CompetitionQuestions = () => {
                 throw new Error("Failed to submit answer to server.");
             }
 
-            // Mark question as submitted (disable button)
             setSubmitted(prev => ({ ...prev, [id]: true }));
 
-            if (isCorrect || questionType == 'trial') {
+            if (isCorrect || questionType === 'trial') {
                 setFeedback(prev => ({
                     ...prev,
                     [id]: "✅ Correct! Your answer was submitted successfully."
                 }));
 
-                setSubmitted(prev => ({ ...prev, [id]: true }));
-                if (timersRef.current[id]) {
-                    clearInterval(timersRef.current[id]);
+                if (timersRef.current[id]) clearInterval(timersRef.current[id]);
+
+                // ✅ Check if all questions are submitted successfully
+                const allSubmitted = records.every(
+                    (record) =>
+                        record.isAnswerBox &&
+                        submitted[record.id] || record.id === id // include current one
+                );
+                if (allSubmitted) {
+                    setTimeout(() => setShowSuccessModal(true), 500);
                 }
 
             } else {
@@ -158,9 +172,9 @@ const CompetitionQuestions = () => {
                     [id]: "❌ Your answer is wrong. You are not eligible for the next question."
                 }));
                 setDisqualified(prev => ({ ...prev, [id]: true }));
+                setCorrectAnswerShown(correctAnswer);
+                setShowDisqualifyModal(true); // ✅ show disqualify modal
                 markUserDisqualified();
-                alert("❌ Your answer is wrong. You are not eligible for the next question.")
-                navigate(-1)
             }
         } catch (error) {
             setFeedback(prev => ({
@@ -170,8 +184,14 @@ const CompetitionQuestions = () => {
         }
     };
 
+
     const handleStartExam = () => {
-        setExamStarted(true);
+       
+        setShowPreExamModal(true);
+        setTimeout(() => {
+            setShowPreExamModal(false);
+            setExamStarted(true);
+        }, 3000); // show modal for 3 seconds
     };
 
     const markUserDisqualified = () => {
@@ -184,89 +204,118 @@ const CompetitionQuestions = () => {
 
 
     return (
-        <div className="main-container bg-theme trialQuestion-page">
-            <Header data={{ title: '', detail: 'Competition Questions', description: '' }} />
-            <div className="container-fluid bg-white">
-                <div className="container">
-                    <div className="d-flex align-items-center py-2">
-                        <img src={tandcIcon} alt="" className="me-2" />
-                        <h6 className="mb-0 fw-semibold text-000000 fs-18">Competition Questions</h6>
-                    </div>
-                </div>
-            </div>
-
-            {!examStarted ? (
-                <div className="container my-5 text-center">
-                    <h3>Click the button below to start your exam</h3>
-                    <button className="btn btn-submit mt-3 p-2" onClick={handleStartExam}>Start Exam</button>
-                </div>
-
-            ) : (
-                <div className="container-fluid">
+        <>
+            <div className="main-container bg-theme trialQuestion-page">
+                <Header data={{ title: '', detail: 'Competition Questions', description: '' }} />
+                <div className="container-fluid bg-white">
                     <div className="container">
-                        <div className="row py-4">
-                            {records.map((item) => (
-                                item.isQuestionReady ? (
-                                    <div className="col-12 col-md-6 col-xl-4 col-xxl-3 mx-auto mb-3" key={item.id}>
-                                        <div className="p-3 border rounded bg-light">
-                                            <h5>Question ID: {item.question_id}</h5>
-                                            {/* <h5>Answer: {item.answer}</h5> */}
-
-                                            {/* {countdowns[item.id] !== undefined && (
-                                                <div className="mb-2 text-danger">
-                                                    ⏳ Time left: {countdowns[item.id]}s
-                                                </div>
-                                            )} */}
-
-
-                                            {item.isQuestionReady ? (
-                                                <div className="card bg-FFEA9F border-0 rounded-3 shadow-sm mb-3">
-                                                    <div className="card-body p-3">
-                                                        <>
-                                                            {/* <p><strong>Q:</strong> {item.question}</p> */}
-
-                                                            <input
-                                                                type="number"
-                                                                className="form-control mb-2"
-                                                                value={userAnswers[item.id] || ''}
-                                                                onChange={(e) => handleInputChange(e, item.id)}
-                                                                placeholder="Enter your answer"
-                                                                disabled={!!submitted[item.id]}
-                                                            />
-                                                            {item.isAnswerBox ? <button
-                                                                className="btn btn-submit rounded-pill w-100"
-                                                                onClick={() => handleSubmit(item.id, item.answer, item.question_id, item.questionType)}
-                                                                disabled={!!submitted[item.id]}
-                                                            >
-                                                                Submit
-                                                            </button> : ''}
-
-
-
-                                                            {feedback[item.id] && (
-                                                                <div className="mt-2">
-                                                                    <span>{feedback[item.id]}</span>
-                                                                </div>
-                                                            )}
-
-
-                                                        </>
-                                                    </div>
-                                                    {/* {JSON.stringify(item)} */}
-                                                </div>
-                                            ) : (
-                                                <p className="text-muted">Question will be shown soon...</p>
-                                            )}
-
-                                        </div>
-                                    </div>
-                                ) : null
-                            ))}
+                        <div className="d-flex align-items-center py-2">
+                            <img src={tandcIcon} alt="" className="me-2" />
+                            <h6 className="mb-0 fw-semibold text-000000 fs-18">Competition Questions</h6>
                         </div>
                     </div>
                 </div>
+
+                {!examStarted ? (
+                    <div className="container my-5 text-center">
+                        <h3>Click the button below to start your exam</h3>
+                        <button className="btn btn-submit mt-3 p-2" onClick={handleStartExam}>Start Exam</button>
+                    </div>
+
+                ) : (
+                    <div className="container-fluid">
+                        <div className="container">
+                            <div className="row py-4">
+                                {records.map((item) => (
+                                    item.isQuestionReady ? (
+                                        <div className="col-12 col-md-6 col-xl-4 col-xxl-3 mx-auto mb-3" key={item.id}>
+                                            <div className="p-3 border rounded bg-light">
+                                                <h5>Question ID: {item.question_id}</h5>
+
+                                                {item.isQuestionReady ? (
+                                                    <div className="card bg-FFEA9F border-0 rounded-3 shadow-sm mb-3">
+                                                        <div className="card-body p-3">
+                                                            <>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control mb-2"
+                                                                    value={userAnswers[item.id] || ''}
+                                                                    onChange={(e) => handleInputChange(e, item.id)}
+                                                                    placeholder="Enter your answer"
+                                                                    disabled={!!submitted[item.id]}
+                                                                />
+                                                                {item.isAnswerBox ? <button
+                                                                    className="btn btn-submit rounded-pill w-100"
+                                                                    onClick={() => handleSubmit(item.id, item.answer, item.question_id, item.questionType)}
+                                                                    disabled={!!submitted[item.id]}
+                                                                >
+                                                                    Submit
+                                                                </button> : ''}
+
+
+
+                                                                {feedback[item.id] && (
+                                                                    <div className="mt-2">
+                                                                        <span>{feedback[item.id]}</span>
+                                                                    </div>
+                                                                )}
+
+
+                                                            </>
+                                                        </div>
+                                                        {JSON.stringify(item)}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-muted">Question will be shown soon...</p>
+                                                )}
+
+                                            </div>
+                                        </div>
+                                    ) : null
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* ❌ Disqualified Modal */}
+            {showDisqualifyModal && (
+                <div className="modal-backdrop show d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog bg-white p-4 rounded shadow">
+                        <h5 className="text-danger">❌ Wrong Answer!</h5>
+                        <p>The correct answer was: <strong>{correctAnswerShown}</strong></p>
+                        <p>You are disqualified from the competition.</p>
+                        <button className="btn btn-danger mt-2" onClick={() => navigate(-1)}>Go Back</button>
+                    </div>
+                </div>
             )}
-        </div>
+
+            {/* 🎉 Success Modal */}
+            {showSuccessModal && (
+                <div className="modal-backdrop show d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog bg-white p-4 rounded shadow">
+                        <h5 className="text-success">🎉 Congratulations!</h5>
+                        <p>You have successfully completed all questions.</p>
+                        <button className="btn btn-success mt-2" onClick={() => setShowSuccessModal(false)}>Close</button>
+                    </div>
+                </div>
+            )}
+
+
+            {/* ⏳ Pre-Exam Start Modal */}
+            {showPreExamModal && (
+                <div className="modal-backdrop show d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog bg-white p-4 rounded shadow">
+                        <h5 className="text-primary">⏳ Your Competition Will Start Soon</h5>
+                        <p>You will get <strong>10 seconds</strong> for each question.</p>
+                        <p>Get ready!</p>
+                    </div>
+                </div>
+            )}
+
+
+        </>
     );
 };
 

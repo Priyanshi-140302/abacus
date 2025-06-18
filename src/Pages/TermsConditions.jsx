@@ -126,6 +126,34 @@ const TermsConditions = () => {
                             </>
                         )}
 
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                className="form-check-input border-2 shadow-none"
+                                id="exampleCheck1"
+                                checked={agreed}
+                                onChange={handleCheckboxChange}
+                            />
+                            <label
+                                className="form-check-label text-000000 fs-18 fw-semibold"
+                                style={{ lineHeight: '18px' }}
+                                htmlFor="exampleCheck1"
+                            >
+                                By clicking "I Agree", you confirm that you have read and accepted all the terms & conditions.
+                            </label>
+                        </div>
+
+                        <Link
+                            to={agreed ? "/competition-questions" : "#"}
+                            className={`btn btn-agree w-100 rounded-pill fw-semibold ${!agreed ? 'disabled' : ''}`}
+                            onClick={(e) => {
+                                if (!agreed) e.preventDefault();
+                            }}
+                        >
+                            I AGREE & START EXAM
+                        </Link>
+
+
 
                         {/* {alreadyAgreed && (
                             <Link

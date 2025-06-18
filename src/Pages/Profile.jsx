@@ -43,7 +43,7 @@ const Profile = () => {
     return (
         <>
             <div className="main-container bg-theme profile-page">
-               
+
 
                 <Header data={{ title: '', detail: 'Profile', description: '' }} />
                 <div className="container-fluid">
@@ -62,17 +62,75 @@ const Profile = () => {
                                     </div>
                                     <div className="card-body">
                                         <div className="mb-3">
-                                            <label htmlFor="name" className="form-label fw-semibold text-dark fs-5">
-                                                <i className="bi bi-person-fill text-primary me-1"></i> Name:
+                                            <label htmlFor="username" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-person-fill text-primary me-1"></i> Username:
                                             </label>
-                                            <h2 className="form-control fs-3 fw-bolder rounded-4">{data?.username}</h2>
+                                            <h2 className="form-control fs-4 fw-bolder rounded-4">{data?.username || "N/A"}</h2>
                                         </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="studentId" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-hash text-primary me-1"></i> Student ID:
+                                            </label>
+                                            <div className="form-control">{data?.student_id || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="name" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-person-lines-fill text-primary me-1"></i> Name:
+                                            </label>
+                                            <div className="form-control">{data?.name || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="mobile" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-telephone-fill text-primary me-1"></i> Mobile:
+                                            </label>
+                                            <div className="form-control">{data?.mobile || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="altMobile" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-telephone-outbound-fill text-primary me-1"></i> Alternate Mobile:
+                                            </label>
+                                            <div className="form-control">{data?.alternate_mobile || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="centreInstructor" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-person-badge text-primary me-1"></i> Centre Instructor:
+                                            </label>
+                                            <div className="form-control">{data?.centre_instructor || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="groupName" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-people-fill text-primary me-1"></i> Group Name:
+                                            </label>
+                                            <div className="form-control">{data?.group_name || "N/A"}</div>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="levelName" className="form-label fw-semibold text-dark fs-5">
+                                                <i className="bi bi-layers-fill text-primary me-1"></i> Level:
+                                            </label>
+                                            <div className="form-control">{data?.level_name || "N/A"}</div>
+                                        </div>
+
+                                        {/* Optional: Display user image if available */}
+                                        {data?.image && (
+                                            <div className="mb-3 text-center">
+                                                <img src={data.image} alt="User" className="img-fluid rounded-circle border" style={{ maxWidth: "120px" }} />
+                                            </div>
+                                        )}
+
                                         <div className="pt-3 border-top mt-4">
                                             <Link to="/" className="btn btn-outline-danger rounded-pill py-2 w-100 fw-semibold">
                                                 <i className="bi bi-box-arrow-right me-1"></i> Logout
                                             </Link>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
 
