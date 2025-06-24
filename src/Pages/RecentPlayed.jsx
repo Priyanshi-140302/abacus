@@ -13,6 +13,7 @@ const RecentPlayed = () => {
     const [answer, setAnswer] = useState('');
     const [result, setResult] = useState(null);
     const [activeCardId, setActiveCardId] = useState(null);
+    const [voiceSettings, setVoiceSettings] = useState(null);
 
     const [submitted, setSubmitted] = useState({});
 
@@ -30,9 +31,6 @@ const RecentPlayed = () => {
             }
         }));
     };
-
-
-
 
     const [data, setData] = useState();
     const [page, setPage] = useState(1);
@@ -65,11 +63,38 @@ const RecentPlayed = () => {
         }
     };
 
-
     useEffect(() => {
         getData();
     }, [page])
 
+
+
+    const fetchVoiceSettings = async () => {
+        try {
+            const token = sessionStorage.getItem('token');
+            const res = await fetch(`${URL}/get-voice-control`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            const json = await res.json();
+            if (json.status && json.data && json.data.length > 0) {
+                setVoiceSettings(json.data[0]);
+            } else {
+                console.warn('Voice settings not available');
+            }
+        } catch (error) {
+            console.error('Failed to load voice settings:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchVoiceSettings();
+    }, []);
 
     const handleOpen = (question) => {
         setCurrentQuestion(question);
@@ -112,15 +137,40 @@ const RecentPlayed = () => {
     };
 
     const preprocessMathExpression = (expression) => {
-        return expression
-            .replace(/-/g, ' minus ')
-            .replace(/\+/g, ' plus ')
-            .replace(/!/g, '')        // Remove the factorial symbol
-            .replace(/\s+/g, ' ')     // Normalize extra spaces
-            .trim();
+        let result = '';
+        let i = 0;
+        let expectPlus = false;
+        let lastTokenWasNumber = false;
+
+        while (i < expression.length) {
+            const char = expression[i];
+
+            if (char === '-') {
+                result += ' minus ';
+                expectPlus = true;
+                lastTokenWasNumber = false;
+                i++;
+            } else if (char === '+') {
+                if (expectPlus && lastTokenWasNumber) {
+                    result += ' plus ';
+                    expectPlus = false; // Only take first `+` after number
+                }
+                i++; // Always skip `+` if not expected
+            } else if (/\d/.test(char)) {
+                let num = '';
+                while (i < expression.length && /\d/.test(expression[i])) {
+                    num += expression[i];
+                    i++;
+                }
+                result += num + ' ';
+                lastTokenWasNumber = true;
+            } else {
+                i++; // Skip unknown chars
+            }
+        }
+
+        return result.trim().replace(/\s+/g, ' ');
     };
-
-
 
     return (
         <>
@@ -128,40 +178,68 @@ const RecentPlayed = () => {
                 <Header data={{ title: '', detail: 'recent-played', description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
+
+
+                        {/* {voiceSettings && (
+                            <div className="card p-3 mt-3 mb-4 shadow-sm">
+                                <h5 className="fw-semibold mb-3">Voice Settings</h5>
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <label>Rate: {voiceSettings.voice_rate}</label>
+                                        <input type="range" min="0.1" max="2" step="0.1" value={voiceSettings.voice_rate} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_rate: parseFloat(e.target.value) }))} className="form-range" />
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label>Pitch: {voiceSettings.voice_pitch}</label>
+                                        <input type="range" min="0" max="2" step="0.1" value={voiceSettings.voice_pitch} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_pitch: parseFloat(e.target.value) }))} className="form-range" />
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label>Volume: {voiceSettings.voice_volume}</label>
+                                        <input type="range" min="0" max="1" step="0.1" value={voiceSettings.voice_volume} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_volume: parseFloat(e.target.value) }))} className="form-range" />
+                                    </div>
+                                </div>
+                            </div>
+                        )} */}
+
                         <div className="row py-4">
 
                             {data?.data?.map((item, index) => {
                                 const state = speechStates[item.id] || { isPaused: false, isSpeaking: false };
 
-                                const speakText = (text) => {
-                                    window.speechSynthesis.cancel();
+                                const speakText = (text, id) => {
+                                    const speakNow = () => {
+                                        const processedText = preprocessMathExpression(text) || text;
 
-                                    const processedText = preprocessMathExpression(text);  // Clean the input
-                                    const utterance = new SpeechSynthesisUtterance(processedText);
-                                    utterance.lang = 'en-IN';
+                                        const utterance = new SpeechSynthesisUtterance(processedText);
+                                        utterance.lang = 'en-IN';
 
-                                    const voices = window.speechSynthesis.getVoices();
-                                    const indianVoice = voices.find(voice => voice.lang === 'en-IN');
-                                    if (indianVoice) {
-                                        utterance.voice = indianVoice;
-                                    } else {
-                                        console.warn('Indian English voice not found, using default voice');
-                                    }
+                                        const voices = window.speechSynthesis.getVoices();
+                                        const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.lang === 'en-IN');
+                                        if (selectedVoice) utterance.voice = selectedVoice;
 
-                                    utterance.onend = () => updateSpeechState(item.id, { isSpeaking: false, isPaused: false });
-                                    utterance.onerror = (e) => {
-                                        console.error("Speech synthesis error:", e);
-                                        updateSpeechState(item.id, { isSpeaking: false, isPaused: false });
+                                        utterance.rate = voiceSettings?.voice_rate || 1;
+                                        utterance.pitch = voiceSettings?.voice_pitch || 1;
+                                        utterance.volume = voiceSettings?.voice_volume || 1;
+
+                                        utterance.onend = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                                        utterance.onerror = (e) => {
+                                            updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                                        };
+
+                                        updateSpeechState(id, { isSpeaking: true, isPaused: false });
+
+                                        window.speechSynthesis.cancel(); // Cancel previous speech
+                                        window.speechSynthesis.speak(utterance);
                                     };
 
-                                    updateSpeechState(item.id, { isSpeaking: true, isPaused: false });
-
+                                    // If voices are not loaded yet, wait and retry
+                                    const voices = window.speechSynthesis.getVoices();
                                     if (voices.length === 0) {
                                         window.speechSynthesis.onvoiceschanged = () => {
-                                            speakText(text); // Retry after voices are loaded
+                                            speakNow();
+                                            window.speechSynthesis.onvoiceschanged = null; // Prevent infinite loop
                                         };
                                     } else {
-                                        window.speechSynthesis.speak(utterance);
+                                        speakNow();
                                     }
                                 };
 
@@ -311,3 +389,5 @@ const RecentPlayed = () => {
 }
 
 export default RecentPlayed
+
+
