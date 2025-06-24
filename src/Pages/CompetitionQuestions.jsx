@@ -282,37 +282,57 @@ const CompetitionQuestions = () => {
                             </div>
                         </div>
 
-
                         {/* ❌ Disqualified Modal */}
                         {showDisqualifyModal && (
-                            <div className="modal-backdrop show d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                                <div className="modal-dialog bg-white p-4 rounded shadow">
-                                    <h5 className="text-danger">❌ Wrong Answer!</h5>
-                                    <p>The correct answer was: <strong>{correctAnswerShown}</strong></p>
-                                    <p>You are disqualified from the competition.</p>
-                                    <button className="btn btn-danger mt-2" onClick={() => navigate(-1)}>Go Back</button>
+                            <div
+                                className="modal modal-sm fade show d-block"
+                                tabIndex="-1"
+                                style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+                            >
+                                <div className="modal-dialog modal-dialog-centered">
+                                    <div className="modal-content shadow rounded-4">
+                                        <div className="modal-header border-0 justify-content-center">
+                                            <h4 className="modal-title text-danger text-center fw-bold">❌ Wrong Answer!</h4>
+                                        </div>
+                                        <div className="modal-body">
+                                            <h5 className="text-center">The correct answer was: <strong>{correctAnswerShown}</strong></h5>
+                                            <h5 className="text-center">You are disqualified from the competition.</h5>
+                                        </div>
+                                        <div className="modal-footer border-0 justify-content-center">
+                                            <button className="btn btn-danger mt-2 rounded-pill" onClick={() => navigate(-1)}>Go Back</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
-
-
 
                         {showSuccessModal && (
-                            <div className="modal-backdrop show d-flex align-items-center justify-content-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
-                                <div className="modal-dialog bg-white p-4 rounded shadow">
-                                    <h5 className="text-danger">🛑 Your Exam is Over</h5>
-                                    <p>The competition has ended.</p>
-                                    <button className="btn btn-dark mt-2" onClick={() => navigate(-1)}>Go Back</button>
+                            <div
+                                className="modal modal-sm fade show d-block"
+                                tabIndex="-1"
+                                style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+                            >
+                                <div className="modal-dialog modal-dialog-centered">
+                                    <div className="modal-content shadow rounded-4">
+                                        <div className="modal-header border-0 justify-content-center">
+                                            <h4 className="modal-title text-danger text-center fw-bold">🛑 Your Exam is Over</h4>
+                                        </div>
+                                        <div className="modal-body">
+                                            <h5 className="text-center">The competition has ended.</h5>
+                                        </div>
+                                        <div className="modal-footer border-0 justify-content-center">
+                                            <button className="btn btn-dark rounded-pill" onClick={() => navigate(-1)}>
+                                                Go Back
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
-
 
                     </>
                 )}
             </div>
-
-
 
         </>
     );
