@@ -11,7 +11,8 @@ import TrialQuestions2 from './Pages/TrialQuestions2'
 import Congratulations from './Pages/Congratulations'
 import CompetitionQuestions from './Pages/CompetitionQuestions'
 import PrivateRoute from './components/PrivateRoute';
-import Profile from './Pages/Profile'
+import Profile from './Pages/Profile';
+import FaceRecognitionLogin from './components/FaceRecogination';
 
 function App() {
 
@@ -19,7 +20,8 @@ function App() {
     <>
       <BrowserRouter basename="/abacus">
         <Routes>
-          <Route path='/' element={<Login />} />
+           <Route path='/' element={<FaceRecognitionLogin/>}/>
+          <Route path='/login' element={<Login />} />
           <Route path='/home' element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path='/listening-practice' element={<PrivateRoute><ListeningPractice /></PrivateRoute>} />
           <Route path='/recent-played/:id' element={<PrivateRoute><RecentPlayed /></PrivateRoute>} />
