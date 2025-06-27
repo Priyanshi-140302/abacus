@@ -248,59 +248,59 @@ const RecentPlayed = () => {
 
 
     const numberToWords = (num) => {
-    const words = [
-        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-        "seventeen", "eighteen", "nineteen", "twenty", "twenty one", "twenty two",
-        "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven",
-        "twenty eight", "twenty nine", "thirty", "thirty one", "thirty two", "thirty three",
-        "thirty four", "thirty five", "thirty six", "thirty seven", "thirty eight",
-        "thirty nine", "forty", "forty one", "forty two", "forty three", "forty four",
-        "forty five", "forty six", "forty seven", "forty eight", "forty nine", "fifty",
-        "fifty one", "fifty two", "fifty three", "fifty four", "fifty five", "fifty six",
-        "fifty seven", "fifty eight", "fifty nine", "sixty", "sixty one", "sixty two",
-        "sixty three", "sixty four", "sixty five", "sixty six", "sixty seven", "sixty eight",
-        "sixty nine", "seventy", "seventy one", "seventy two", "seventy three", "seventy four",
-        "seventy five", "seventy six", "seventy seven", "seventy eight", "seventy nine",
-        "eighty", "eighty one", "eighty two", "eighty three", "eighty four", "eighty five",
-        "eighty six", "eighty seven", "eighty eight", "eighty nine", "ninety", "ninety one",
-        "ninety two", "ninety three", "ninety four", "ninety five", "ninety six", "ninety seven",
-        "ninety eight", "ninety nine", "one hundred"
-    ];
-    return words[parseInt(num)] || num;
-};
+        const words = [
+            "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+            "seventeen", "eighteen", "nineteen", "twenty", "twenty one", "twenty two",
+            "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven",
+            "twenty eight", "twenty nine", "thirty", "thirty one", "thirty two", "thirty three",
+            "thirty four", "thirty five", "thirty six", "thirty seven", "thirty eight",
+            "thirty nine", "forty", "forty one", "forty two", "forty three", "forty four",
+            "forty five", "forty six", "forty seven", "forty eight", "forty nine", "fifty",
+            "fifty one", "fifty two", "fifty three", "fifty four", "fifty five", "fifty six",
+            "fifty seven", "fifty eight", "fifty nine", "sixty", "sixty one", "sixty two",
+            "sixty three", "sixty four", "sixty five", "sixty six", "sixty seven", "sixty eight",
+            "sixty nine", "seventy", "seventy one", "seventy two", "seventy three", "seventy four",
+            "seventy five", "seventy six", "seventy seven", "seventy eight", "seventy nine",
+            "eighty", "eighty one", "eighty two", "eighty three", "eighty four", "eighty five",
+            "eighty six", "eighty seven", "eighty eight", "eighty nine", "ninety", "ninety one",
+            "ninety two", "ninety three", "ninety four", "ninety five", "ninety six", "ninety seven",
+            "ninety eight", "ninety nine", "one hundred"
+        ];
+        return words[parseInt(num)] || num;
+    };
 
-const preprocessMathExpression = (expression) => {
-    const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
-    let result = [];
+    const preprocessMathExpression = (expression) => {
+        const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+        let result = [];
 
-    tokens.forEach(token => {
-        token = token.trim();
-        if (!token) return;
+        tokens.forEach(token => {
+            token = token.trim();
+            if (!token) return;
 
-        if (/^\d+!$/.test(token)) {
-            const number = token.slice(0, -1);
-            result.push(numberToWords(number));
-        } else if (/^\d+$/.test(token)) {
-            result.push(numberToWords(token));
-        } else if (token === '-') {
-            result.push('minus');
-        } else if (token === '+') {
-            result.push('plus');
-        }
-    });
+            if (/^\d+!$/.test(token)) {
+                const number = token.slice(0, -1);
+                result.push(numberToWords(number));
+            } else if (/^\d+$/.test(token)) {
+                result.push(numberToWords(token));
+            } else if (token === '-') {
+                result.push('minus');
+            } else if (token === '+') {
+                result.push('plus');
+            }
+        });
 
-    // Append "that is" at the end
-    result.push('that is');
+        // Append "that is" at the end
+        result.push('that is');
 
-    return result.join(' ').replace(/\s+/g, ' ');
-};
+        return result.join(' ').replace(/\s+/g, ' ');
+    };
 
 
     return (
         <>
             <div className="main-container bg-theme ">
-                <Header data={{ title: '', detail: 'recent-played', description: '' }} />
+                <Header data={{ title: '', detail: id, description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
 
@@ -338,7 +338,10 @@ const preprocessMathExpression = (expression) => {
                                         utterance.lang = 'en-IN';
 
                                         const voices = window.speechSynthesis.getVoices();
-                                        const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.lang === 'en-IN');
+                                        // const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.lang === 'en-IN');
+
+                                        const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female');
+
                                         if (selectedVoice) utterance.voice = selectedVoice;
 
                                         utterance.rate = voiceSettings?.voice_rate || 1;
