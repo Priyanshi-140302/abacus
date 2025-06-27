@@ -1,15 +1,39 @@
+import { useEffect, useState, useRef } from "react";
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-
+import { ref, onValue, update } from "firebase/database";
+import { database } from "../firebase";
+import { onChildChanged } from "firebase/database";
 
 const Home = () => {
     const data = sessionStorage.getItem('data');
     const detail = JSON.parse(data)
+    const [examStarted, setExamStarted] = useState(false);
+
+    useEffect(() => {
+        const settingsRef = ref(database, 'questions/settings');
+
+        const unsubscribe = onChildChanged(settingsRef, (snapshot) => {
+            const key = snapshot.key;
+            const value = snapshot.val();
+
+
+            if (key === 'competition_start' && value == 1) {
+                setExamStarted(true);
+            }
+
+            if (key === 'competition_end' && value == 1) {
+                setExamStarted(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     return (
         <>
             <div className="main-container bg-theme">
-                <Header data={{ title:'Hello' ,detail:detail?.username, description: '' }} />
+                <Header data={{ title: 'Hello', detail: detail?.username, description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
                         <div className="row py-4">
@@ -35,7 +59,8 @@ const Home = () => {
                                     </div>
                                 </Link>
                             </div>
-                            <div className="col-12 col-md-6 col-xl-4 mb-4">
+
+                            {!examStarted ? ('') : (<div className="col-12 col-md-6 col-xl-4 mb-4">
                                 <Link to="/termsandconditions" className="text-decoration-none">
                                     <div className="card border-0 rounded-4 shadow-sm">
                                         <div className="card-body">
@@ -50,9 +75,11 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </Link>
-                            </div>
+                            </div>)}
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </>

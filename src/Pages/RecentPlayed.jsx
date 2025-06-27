@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios';
-import voiceFrequencyImg from '../assets/images/voiceFrequencyImg.png';
 import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
 import { useParams } from 'react-router-dom';
@@ -136,116 +135,6 @@ const RecentPlayed = () => {
         setResult(null);
     };
 
-    // const preprocessMathExpression = (expression) => {
-    //     let result = '';
-    //     let i = 0;
-    //     let expectPlus = false;
-    //     let lastTokenWasNumber = false;
-
-    //     while (i < expression.length) {
-    //         const char = expression[i];
-
-    //         if (char === '-') {
-    //             result += ' minus ';
-    //             expectPlus = true;
-    //             lastTokenWasNumber = false;
-    //             i++;
-    //         } else if (char === '+') {
-    //             if (expectPlus && lastTokenWasNumber) {
-    //                 result += ' plus ';
-    //                 expectPlus = false; // Only take first `+` after number
-    //             }
-    //             i++; // Always skip `+` if not expected
-    //         } else if (/\d/.test(char)) {
-    //             let num = '';
-    //             while (i < expression.length && /\d/.test(expression[i])) {
-    //                 num += expression[i];
-    //                 i++;
-    //             }
-    //             result += num + ' ';
-    //             lastTokenWasNumber = true;
-    //         } else {
-    //             i++; // Skip unknown chars
-    //         }
-    //     }
-
-    //     return result.trim().replace(/\s+/g, ' ');
-    // };
-
-    // const preprocessMathExpression = (expression) => {
-    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
-    //     let result = [];
-
-    //     tokens.forEach((token) => {
-    //         token = token.trim();
-    //         if (!token) return;
-
-    //         if (/^\d+!$/.test(token)) {
-    //             // Just return the number with "!" as-is (don't say "factorial")
-    //             result.push(token);
-    //         } else if (token === '+') {
-    //             result.push('plus');
-    //         } else if (token === '-') {
-    //             result.push('minus');
-    //         } else if (/^\d+$/.test(token)) {
-    //             result.push(token);
-    //         }
-    //     });
-
-    //     return result.join(' ').replace(/\s+/g, ' ');
-    // };
-
-
-
-    //     const preprocessMathExpression = (expression) => {
-    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
-    //     let result = [];
-
-    //     tokens.forEach((token) => {
-    //         token = token.trim();
-    //         if (!token) return;
-
-    //         if (/^\d+!$/.test(token)) {
-    //             result.push(token); // keep 75! etc.
-    //         } else if (token === '-') {
-    //             result.push('minus');
-    //         } else if (token === '+') {
-    //             // skip saying "plus"
-    //         } else if (/^\d+$/.test(token)) {
-    //             result.push(token); // plain number
-    //         }
-    //     });
-
-    //     return result.join(' ').replace(/\s+/g, ' ');
-    // };
-
-
-    // const preprocessMathExpression = (expression) => {
-    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
-    //     let result = [];
-
-    //     tokens.forEach((token) => {
-    //         token = token.trim();
-    //         if (!token) return;
-
-    //         if (/^0!$/.test(token)) {
-    //             result.push('zero!'); // speak as "zero factorial"
-    //         } else if (token === '0') {
-    //             result.push('zero');
-    //         } else if (/^\d+!$/.test(token)) {
-    //             result.push(token); // keep as 5!, 11!, etc.
-    //         } else if (token === '-') {
-    //             result.push('minus');
-    //         } else if (token === '+') {
-    //             // skip "plus"
-    //         } else if (/^\d+$/.test(token)) {
-    //             result.push(token);
-    //         }
-    //     });
-
-    //     return result.join(' ').replace(/\s+/g, ' ');
-    // };
-
 
     const numberToWords = (num) => {
         const words = [
@@ -303,27 +192,6 @@ const RecentPlayed = () => {
                 <Header data={{ title: '', detail: id, description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
-
-
-                        {/* {voiceSettings && (
-                            <div className="card p-3 mt-3 mb-4 shadow-sm">
-                                <h5 className="fw-semibold mb-3">Voice Settings</h5>
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        <label>Rate: {voiceSettings.voice_rate}</label>
-                                        <input type="range" min="0.1" max="2" step="0.1" value={voiceSettings.voice_rate} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_rate: parseFloat(e.target.value) }))} className="form-range" />
-                                    </div>
-                                    <div className="col-md-4">
-                                        <label>Pitch: {voiceSettings.voice_pitch}</label>
-                                        <input type="range" min="0" max="2" step="0.1" value={voiceSettings.voice_pitch} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_pitch: parseFloat(e.target.value) }))} className="form-range" />
-                                    </div>
-                                    <div className="col-md-4">
-                                        <label>Volume: {voiceSettings.voice_volume}</label>
-                                        <input type="range" min="0" max="1" step="0.1" value={voiceSettings.voice_volume} onChange={(e) => setVoiceSettings(prev => ({ ...prev, voice_volume: parseFloat(e.target.value) }))} className="form-range" />
-                                    </div>
-                                </div>
-                            </div>
-                        )} */}
 
                         <div className="row py-4">
 
