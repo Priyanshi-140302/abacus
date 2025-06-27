@@ -296,7 +296,7 @@ const CompetitionQuestions = () => {
                                         </div>
                                         <div className="modal-body">
                                             <h5 className="text-center">The correct answer was: <strong>{correctAnswerShown}</strong></h5>
-                                            <h5 className="text-center">You are disqualified from the competition.</h5>
+                                            <h5 className="text-center">Opps better luck next time.</h5>
                                         </div>
                                         <div className="modal-footer border-0 justify-content-center">
                                             <button className="btn btn-danger mt-2 rounded-pill" onClick={() => navigate(-1)}>Go Back</button>

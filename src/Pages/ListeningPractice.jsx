@@ -17,7 +17,7 @@ const ListeningPractice = () => {
             const token = sessionStorage.getItem('token');
 
             const response = await axios.get(`${URL}/listening-question-categories`, {
-                params: { per_page: page }, // query param
+                params: { page: page }, // query param
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',

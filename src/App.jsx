@@ -20,8 +20,8 @@ function App() {
     <>
       <BrowserRouter basename="/abacus">
         <Routes>
-           <Route path='/' element={<FaceRecognitionLogin/>}/>
-          <Route path='/login' element={<Login />} />
+           <Route path='/login' element={<FaceRecognitionLogin/>}/>
+          <Route path='/' element={<Login />} />
           <Route path='/home' element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path='/listening-practice' element={<PrivateRoute><ListeningPractice /></PrivateRoute>} />
           <Route path='/recent-played/:id' element={<PrivateRoute><RecentPlayed /></PrivateRoute>} />
