@@ -136,46 +136,171 @@ const RecentPlayed = () => {
         setResult(null);
     };
 
-    const preprocessMathExpression = (expression) => {
-        let result = '';
-        let i = 0;
-        let expectPlus = false;
-        let lastTokenWasNumber = false;
+    // const preprocessMathExpression = (expression) => {
+    //     let result = '';
+    //     let i = 0;
+    //     let expectPlus = false;
+    //     let lastTokenWasNumber = false;
 
-        while (i < expression.length) {
-            const char = expression[i];
+    //     while (i < expression.length) {
+    //         const char = expression[i];
 
-            if (char === '-') {
-                result += ' minus ';
-                expectPlus = true;
-                lastTokenWasNumber = false;
-                i++;
-            } else if (char === '+') {
-                if (expectPlus && lastTokenWasNumber) {
-                    result += ' plus ';
-                    expectPlus = false; // Only take first `+` after number
-                }
-                i++; // Always skip `+` if not expected
-            } else if (/\d/.test(char)) {
-                let num = '';
-                while (i < expression.length && /\d/.test(expression[i])) {
-                    num += expression[i];
-                    i++;
-                }
-                result += num + ' ';
-                lastTokenWasNumber = true;
-            } else {
-                i++; // Skip unknown chars
-            }
-        }
+    //         if (char === '-') {
+    //             result += ' minus ';
+    //             expectPlus = true;
+    //             lastTokenWasNumber = false;
+    //             i++;
+    //         } else if (char === '+') {
+    //             if (expectPlus && lastTokenWasNumber) {
+    //                 result += ' plus ';
+    //                 expectPlus = false; // Only take first `+` after number
+    //             }
+    //             i++; // Always skip `+` if not expected
+    //         } else if (/\d/.test(char)) {
+    //             let num = '';
+    //             while (i < expression.length && /\d/.test(expression[i])) {
+    //                 num += expression[i];
+    //                 i++;
+    //             }
+    //             result += num + ' ';
+    //             lastTokenWasNumber = true;
+    //         } else {
+    //             i++; // Skip unknown chars
+    //         }
+    //     }
 
-        return result.trim().replace(/\s+/g, ' ');
+    //     return result.trim().replace(/\s+/g, ' ');
+    // };
+
+    // const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach((token) => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         if (/^\d+!$/.test(token)) {
+    //             // Just return the number with "!" as-is (don't say "factorial")
+    //             result.push(token);
+    //         } else if (token === '+') {
+    //             result.push('plus');
+    //         } else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (/^\d+$/.test(token)) {
+    //             result.push(token);
+    //         }
+    //     });
+
+    //     return result.join(' ').replace(/\s+/g, ' ');
+    // };
+
+
+
+    //     const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach((token) => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         if (/^\d+!$/.test(token)) {
+    //             result.push(token); // keep 75! etc.
+    //         } else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (token === '+') {
+    //             // skip saying "plus"
+    //         } else if (/^\d+$/.test(token)) {
+    //             result.push(token); // plain number
+    //         }
+    //     });
+
+    //     return result.join(' ').replace(/\s+/g, ' ');
+    // };
+
+
+    // const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach((token) => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         if (/^0!$/.test(token)) {
+    //             result.push('zero!'); // speak as "zero factorial"
+    //         } else if (token === '0') {
+    //             result.push('zero');
+    //         } else if (/^\d+!$/.test(token)) {
+    //             result.push(token); // keep as 5!, 11!, etc.
+    //         } else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (token === '+') {
+    //             // skip "plus"
+    //         } else if (/^\d+$/.test(token)) {
+    //             result.push(token);
+    //         }
+    //     });
+
+    //     return result.join(' ').replace(/\s+/g, ' ');
+    // };
+
+
+    const numberToWords = (num) => {
+        const words = [
+            "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+            "seventeen", "eighteen", "nineteen", "twenty", "twenty one", "twenty two",
+            "twenty three", "twenty four", "twenty five", "twenty six", "twenty seven",
+            "twenty eight", "twenty nine", "thirty", "thirty one", "thirty two", "thirty three",
+            "thirty four", "thirty five", "thirty six", "thirty seven", "thirty eight",
+            "thirty nine", "forty", "forty one", "forty two", "forty three", "forty four",
+            "forty five", "forty six", "forty seven", "forty eight", "forty nine", "fifty",
+            "fifty one", "fifty two", "fifty three", "fifty four", "fifty five", "fifty six",
+            "fifty seven", "fifty eight", "fifty nine", "sixty", "sixty one", "sixty two",
+            "sixty three", "sixty four", "sixty five", "sixty six", "sixty seven", "sixty eight",
+            "sixty nine", "seventy", "seventy one", "seventy two", "seventy three", "seventy four",
+            "seventy five", "seventy six", "seventy seven", "seventy eight", "seventy nine",
+            "eighty", "eighty one", "eighty two", "eighty three", "eighty four", "eighty five",
+            "eighty six", "eighty seven", "eighty eight", "eighty nine", "ninety", "ninety one",
+            "ninety two", "ninety three", "ninety four", "ninety five", "ninety six", "ninety seven",
+            "ninety eight", "ninety nine", "one hundred"
+        ];
+        return words[parseInt(num)] || num;
     };
+
+    const preprocessMathExpression = (expression) => {
+        const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+        let result = [];
+
+        tokens.forEach(token => {
+            token = token.trim();
+            if (!token) return;
+
+            if (/^\d+!$/.test(token)) {
+                const number = token.slice(0, -1);
+                result.push(numberToWords(number));
+            } else if (/^\d+$/.test(token)) {
+                result.push(numberToWords(token));
+            } else if (token === '-') {
+                result.push('minus');
+            } else if (token === '+') {
+                result.push('plus');
+            }
+        });
+
+        // Append "that is" at the end
+        result.push('that is');
+
+        return result.join(' ').replace(/\s+/g, ' ');
+    };
+
 
     return (
         <>
             <div className="main-container bg-theme ">
-                <Header data={{ title: '', detail: 'recent-played', description: '' }} />
+                <Header data={{ title: '', detail: id, description: '' }} />
                 <div className="container-fluid">
                     <div className="container">
 
@@ -213,7 +338,10 @@ const RecentPlayed = () => {
                                         utterance.lang = 'en-IN';
 
                                         const voices = window.speechSynthesis.getVoices();
-                                        const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.lang === 'en-IN');
+                                        // const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.lang === 'en-IN');
+
+                                        const selectedVoice = voices.find(v => v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female');
+
                                         if (selectedVoice) utterance.voice = selectedVoice;
 
                                         utterance.rate = voiceSettings?.voice_rate || 1;
