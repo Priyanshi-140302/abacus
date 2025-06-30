@@ -198,7 +198,7 @@ const RecentPlayed = () => {
     const handleReattempt = () => {
         setAnswer('');
         setResult(null);
-
+setShow(false);
         if (currentQuestion) {
             speakText(currentQuestion.question, currentQuestion.id);
         }
