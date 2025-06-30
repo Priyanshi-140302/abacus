@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import checkGif from '../assets/images/checkGif.gif';
 import crossGif from '../assets/images/crossGif.gif';
@@ -115,13 +115,17 @@ const RecentPlayed = () => {
             }
         });
 
+        if (result.length > 0) {
         result.push('that is');
         return result.join(' ').replace(/\s+/g, ' ');
+    }
+     return expression;
     };
 
     const speakText = (text, id) => {
         const speakNow = () => {
             const processedText = preprocessMathExpression(text) || text;
+             console.log("Speaking:", processedText);
             const utterance = new SpeechSynthesisUtterance(processedText);
             utterance.lang = 'en-IN';
 
@@ -169,6 +173,11 @@ const RecentPlayed = () => {
     };
 
     const handleSubmit = () => {
+        if (!answer) {
+            const emptyAlert = document.querySelector("#emptyAlert");
+            emptyAlert.innerHTML = `<h6 class="text-danger">Please enter a value in the Answer field.</h6>`;
+            return;
+        }
         if (!currentQuestion) return;
 
         const userAnswer = answer.trim();
@@ -204,13 +213,18 @@ const RecentPlayed = () => {
                         <div className="row py-4">
                             {data?.data?.map((item, index) => {
                                 const isActive = item.id === activeCardId;
-
-                                const handleReady = () => speakText('Ready', item.id);
+                                const handleReady = () => speakText("Ready", item.id);
                                 const handleQuestion = () => speakText(item.question, item.id);
                                 const handleStop = () => {
                                     window.speechSynthesis.pause();
                                     updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
                                 };
+                                const cardActive = () => {
+                                    if (!isActive) {
+                                        handleReady();
+                                    }
+                                    setActiveCardId(item.id);
+                                }
 
                                 return (
                                     <div key={item.id} className="col-12 col-md-6 col-xl-4 mb-3">
@@ -221,7 +235,7 @@ const RecentPlayed = () => {
                                                     ? 'border-1DE2CF border-2'
                                                     : 'border-white'
                                                 }`}
-                                            onClick={() => setActiveCardId(item.id)}
+                                            onClick={cardActive}
                                             style={{ cursor: 'pointer' }}
                                         >
                                             {submitted[item.id] && (
@@ -231,7 +245,9 @@ const RecentPlayed = () => {
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
                                                     <div className={`${isActive ? 'd-block' : 'd-none'}`}>
-                                                        <SoundWave />
+                                                        {!submitted[item.id] && (
+                                                            <SoundWave />
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="d-flex flex-wrap justify-content-between align-items-center">
@@ -272,11 +288,12 @@ const RecentPlayed = () => {
                             <>
                                 <input
                                     type="number"
-                                    className="form-control answer-input mt-3"
+                                    className="form-control answer-input mt-3 mb-2"
                                     placeholder="Type your answer"
                                     value={answer}
                                     onChange={(e) => setAnswer(e.target.value)}
                                 />
+                                <span id="emptyAlert"></span>
                                 <button className="btn btn-submit w-100 mt-4" onClick={handleSubmit}>
                                     Submit
                                 </button>
