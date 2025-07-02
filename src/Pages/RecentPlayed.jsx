@@ -90,42 +90,116 @@ const RecentPlayed = () => {
         fetchVoiceSettings();
     }, []);
 
+
+
+
+    // const numberToWords = (num) => {
+    //     const words = [...Array(101).keys()].map(i => i.toString());
+    //     return words[parseInt(num)] || num;
+    // };
+
+    // const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach(token => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         if (/^\d+!$/.test(token)) {
+    //             const number = token.slice(0, -1);
+    //             result.push(numberToWords(number));
+    //         } else if (/^\d+$/.test(token)) {
+    //             result.push(numberToWords(token));
+    //         } else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (token === '+') {
+    //             result.push('plus');
+    //         }
+    //     });
+
+    //     if (result.length > 0) {
+    //         result.push('that is');
+    //         return result.join(' ').replace(/\s+/g, ' ');
+    //     }
+    //     return expression;
+    // };
+
+
+
+
     const numberToWords = (num) => {
-        const words = [...Array(101).keys()].map(i => i.toString());
-        return words[parseInt(num)] || num;
+        const a = [
+            '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+            'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+            'seventeen', 'eighteen', 'nineteen'
+        ];
+        const b = [
+            '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+        ];
+
+        const numToWords = (n) => {
+            if (n < 20) return a[n];
+            if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+            if (n < 1000) return a[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numToWords(n % 100) : '');
+            if (n < 1000000) return numToWords(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + numToWords(n % 1000) : '');
+            return n.toString(); // fallback for large numbers
+        };
+
+        return numToWords(Number(num));
     };
 
     const preprocessMathExpression = (expression) => {
-        const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
+        const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
         let result = [];
+
+        let prevIsNumber = false;
 
         tokens.forEach(token => {
             token = token.trim();
             if (!token) return;
 
-            if (/^\d+!$/.test(token)) {
-                const number = token.slice(0, -1);
+            // Factorial
+            if (/^\d{1,3}(,\d{3})*!$/.test(token)) {
+                const number = token.slice(0, -1).replace(/,/g, '');
+                if (prevIsNumber) result.push('plus');
                 result.push(numberToWords(number));
-            } else if (/^\d+$/.test(token)) {
+                prevIsNumber = true;
+            }
+            // Comma numbers
+            else if (/^\d{1,3}(,\d{3})*$/.test(token)) {
+                const number = token.replace(/,/g, '');
+                if (prevIsNumber) result.push('plus');
+                result.push(numberToWords(number));
+                prevIsNumber = true;
+            }
+            // Plain number
+            else if (/^\d+$/.test(token)) {
+                if (prevIsNumber) result.push('plus');
                 result.push(numberToWords(token));
-            } else if (token === '-') {
-                result.push('minus');
-            } else if (token === '+') {
-                result.push('plus');
+                prevIsNumber = true;
+            }
+            // Operators
+            else if (token === '+' || token === '-') {
+                result.push(token === '+' ? 'plus' : 'minus');
+                prevIsNumber = false;
             }
         });
 
         if (result.length > 0) {
-        result.push('that is');
-        return result.join(' ').replace(/\s+/g, ' ');
-    }
-     return expression;
+            result.push('that is');
+            return result.join(' ').replace(/\s+/g, ' ');
+        }
+
+        return expression;
     };
+
+
 
     const speakText = (text, id) => {
         const speakNow = () => {
             const processedText = preprocessMathExpression(text) || text;
-             console.log("Speaking:", processedText);
+            console.log("Speaking:", processedText);
             const utterance = new SpeechSynthesisUtterance(processedText);
             utterance.lang = 'en-IN';
 
@@ -198,7 +272,7 @@ const RecentPlayed = () => {
     const handleReattempt = () => {
         setAnswer('');
         setResult(null);
-setShow(false);
+        setShow(false);
         if (currentQuestion) {
             speakText(currentQuestion.question, currentQuestion.id);
         }
