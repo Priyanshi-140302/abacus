@@ -18,7 +18,7 @@ function App() {
 
   return (
     <>
-      <BrowserRouter basename="/abacus">
+      <BrowserRouter basename="/listening">
         <Routes>
            <Route path='/login' element={<FaceRecognitionLogin/>}/>
           <Route path='/' element={<Login />} />

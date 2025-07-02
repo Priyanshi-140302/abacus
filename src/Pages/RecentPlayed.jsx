@@ -93,41 +93,6 @@ const RecentPlayed = () => {
 
 
 
-    // const numberToWords = (num) => {
-    //     const words = [...Array(101).keys()].map(i => i.toString());
-    //     return words[parseInt(num)] || num;
-    // };
-
-    // const preprocessMathExpression = (expression) => {
-    //     const tokens = expression.split(/(\d+!|\d+|[+\-])/).filter(Boolean);
-    //     let result = [];
-
-    //     tokens.forEach(token => {
-    //         token = token.trim();
-    //         if (!token) return;
-
-    //         if (/^\d+!$/.test(token)) {
-    //             const number = token.slice(0, -1);
-    //             result.push(numberToWords(number));
-    //         } else if (/^\d+$/.test(token)) {
-    //             result.push(numberToWords(token));
-    //         } else if (token === '-') {
-    //             result.push('minus');
-    //         } else if (token === '+') {
-    //             result.push('plus');
-    //         }
-    //     });
-
-    //     if (result.length > 0) {
-    //         result.push('that is');
-    //         return result.join(' ').replace(/\s+/g, ' ');
-    //     }
-    //     return expression;
-    // };
-
-
-
-
     const numberToWords = (num) => {
         const a = [
             '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
@@ -149,77 +114,175 @@ const RecentPlayed = () => {
         return numToWords(Number(num));
     };
 
+    // const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach(token => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         // Handle factorial – remove !, speak as number
+    //         if (/^\d{1,3}(,\d{3})*!$/.test(token)) {
+    //             const number = token.slice(0, -1).replace(/,/g, '');
+    //             result.push(numberToWords(number));
+    //         }
+    //         // Handle comma-separated numbers (e.g., 1,000)
+    //         else if (/^\d{1,3}(,\d{3})*$/.test(token)) {
+    //             const number = token.replace(/,/g, '');
+    //             result.push(numberToWords(number));
+    //         }
+    //         // Plain number
+    //         else if (/^\d+$/.test(token)) {
+    //             result.push(numberToWords(token));
+    //         }
+    //         // Operators
+    //         else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (token === '+') {
+    //             result.push('plus');
+    //         }
+    //     });
+
+    //     if (result.length > 0) {
+    //         result.push('that is');
+    //         return result.join(' ').replace(/\s+/g, ' ');
+    //     }
+
+    //     return expression;
+    // };
+
+
+
+    // const speakText = (text, id) => {
+    //     const speakNow = () => {
+    //         const processedText = preprocessMathExpression(text) || text;
+    //         console.log("Speaking:", processedText);
+    //         const utterance = new SpeechSynthesisUtterance(processedText);
+    //         utterance.lang = 'en-IN';
+
+    //         const voices = window.speechSynthesis.getVoices();
+    //         const selectedVoice = voices.find(v =>
+    //             v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
+    //         );
+    //         if (selectedVoice) utterance.voice = selectedVoice;
+
+    //         utterance.rate = voiceSettings?.voice_rate || 1;
+    //         utterance.pitch = voiceSettings?.voice_pitch || 1;
+    //         utterance.volume = voiceSettings?.voice_volume || 1;
+
+    //         utterance.onend = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+    //         utterance.onerror = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+
+    //         updateSpeechState(id, { isSpeaking: true, isPaused: false });
+
+    //         window.speechSynthesis.cancel();
+    //         window.speechSynthesis.speak(utterance);
+    //     };
+
+    //     const voices = window.speechSynthesis.getVoices();
+    //     if (voices.length === 0) {
+    //         window.speechSynthesis.onvoiceschanged = () => {
+    //             speakNow();
+    //             window.speechSynthesis.onvoiceschanged = null;
+    //         };
+    //     } else {
+    //         speakNow();
+    //     }
+    // };
+
+
+
+
     const preprocessMathExpression = (expression) => {
         const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
         let result = [];
-
-        let prevIsNumber = false;
+        let prevTokenWasNumber = false;
 
         tokens.forEach(token => {
             token = token.trim();
             if (!token) return;
 
-            // Factorial
+            let isNumberLike = false;
+
+            // Handle factorial
             if (/^\d{1,3}(,\d{3})*!$/.test(token)) {
                 const number = token.slice(0, -1).replace(/,/g, '');
-                if (prevIsNumber) result.push('plus');
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
                 result.push(numberToWords(number));
-                prevIsNumber = true;
             }
-            // Comma numbers
+            // Handle comma-separated number
             else if (/^\d{1,3}(,\d{3})*$/.test(token)) {
                 const number = token.replace(/,/g, '');
-                if (prevIsNumber) result.push('plus');
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
                 result.push(numberToWords(number));
-                prevIsNumber = true;
             }
             // Plain number
             else if (/^\d+$/.test(token)) {
-                if (prevIsNumber) result.push('plus');
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
                 result.push(numberToWords(token));
-                prevIsNumber = true;
             }
             // Operators
-            else if (token === '+' || token === '-') {
-                result.push(token === '+' ? 'plus' : 'minus');
-                prevIsNumber = false;
+            else if (token === '-') {
+                result.push('minus');
+            } else if (token === '+') {
+                result.push('plus');
             }
+
+            prevTokenWasNumber = isNumberLike;
         });
 
         if (result.length > 0) {
             result.push('that is');
-            return result.join(' ').replace(/\s+/g, ' ');
+            return result;
         }
 
-        return expression;
+        return [expression];
     };
-
 
 
     const speakText = (text, id) => {
         const speakNow = () => {
-            const processedText = preprocessMathExpression(text) || text;
-            console.log("Speaking:", processedText);
-            const utterance = new SpeechSynthesisUtterance(processedText);
-            utterance.lang = 'en-IN';
+            const parts = preprocessMathExpression(text); // returns array with __PAUSE__
+            console.log("Speaking parts:", parts);
 
-            const voices = window.speechSynthesis.getVoices();
+            let voices = window.speechSynthesis.getVoices();
             const selectedVoice = voices.find(v =>
                 v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
             );
-            if (selectedVoice) utterance.voice = selectedVoice;
 
-            utterance.rate = voiceSettings?.voice_rate || 1;
-            utterance.pitch = voiceSettings?.voice_pitch || 1;
-            utterance.volume = voiceSettings?.voice_volume || 1;
+            const speakParts = (index = 0) => {
+                if (index >= parts.length) {
+                    updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                    return;
+                }
 
-            utterance.onend = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
-            utterance.onerror = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                const part = parts[index];
 
-            updateSpeechState(id, { isSpeaking: true, isPaused: false });
+                if (part === '__PAUSE__') {
+                    setTimeout(() => speakParts(index + 1), 500); // 0.5-second pause
+
+                } else {
+                    const utterance = new SpeechSynthesisUtterance(part);
+                    utterance.lang = 'en-IN';
+                    if (selectedVoice) utterance.voice = selectedVoice;
+                    utterance.rate = voiceSettings?.voice_rate || 1;
+                    utterance.pitch = voiceSettings?.voice_pitch || 1;
+                    utterance.volume = voiceSettings?.voice_volume || 1;
+
+                    utterance.onend = () => speakParts(index + 1);
+                    utterance.onerror = () => speakParts(index + 1);
+
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
 
             window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
+            updateSpeechState(id, { isSpeaking: true, isPaused: false });
+            speakParts();
         };
 
         const voices = window.speechSynthesis.getVoices();
@@ -232,6 +295,7 @@ const RecentPlayed = () => {
             speakNow();
         }
     };
+
 
     const handleOpen = (question) => {
         setCurrentQuestion(question);

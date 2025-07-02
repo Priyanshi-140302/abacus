@@ -1,6 +1,6 @@
 // import React, { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
-// import Logo from '../assets/images/abacusLogo.png';
+// import Logo from '../assets/images/listeningLogo.png';
 
 // const Signup = () => {
 //   const navigate = useNavigate();
