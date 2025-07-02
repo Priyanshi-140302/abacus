@@ -54,7 +54,7 @@ const Home = () => {
                                                 </defs>
                                             </svg>
                                             <h4 className="text-000000 fw-semibold fs-22 mt-2">Listening Practice</h4>
-                                            <h5 className="text-434343 text-normal mb-0 fs-18">Lorem Ipsum is simply dummy text of the printing and typesetting industry</h5>
+                                            <h5 className="text-434343 text-normal mb-0 fs-18"></h5>
                                         </div>
                                     </div>
                                 </Link>
