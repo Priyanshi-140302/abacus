@@ -37,9 +37,22 @@ const ListeningPractice = () => {
 
 
 
+    // useEffect(() => {
+    //     getData();
+    // }, [page])
+
+
+    // On component mount
     useEffect(() => {
+        const savedPage = Number(sessionStorage.getItem('listeningPage')) || 1;
+        setPage(savedPage);
+    }, []);
+
+    // Whenever page changes
+    useEffect(() => {
+        sessionStorage.setItem('listeningPage', page);
         getData();
-    }, [page])
+    }, [page]);
 
 
 

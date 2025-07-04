@@ -15,15 +15,15 @@ const RecentPlayed = () => {
     const [voiceSettings, setVoiceSettings] = useState(null);
     const [submitted, setSubmitted] = useState({});
     const [currentQuestion, setCurrentQuestion] = useState(null);
-
+    const [speechStates, setSpeechStates] = useState({});
     const [data, setData] = useState();
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [speechState, setSpeechState] = useState({});
+
     const { id } = useParams();
 
     const updateSpeechState = (id, updates) => {
-        setSpeechState(prev => ({
+        setSpeechStates(prev => ({
             ...prev,
             [id]: {
                 ...prev[id],
@@ -31,7 +31,6 @@ const RecentPlayed = () => {
             }
         }));
     };
-
 
     const getData = async () => {
         try {
@@ -115,6 +114,109 @@ const RecentPlayed = () => {
         return numToWords(Number(num));
     };
 
+
+
+    // const numberToWords = (num) => {
+    //     const a = [
+    //         '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+    //         'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+    //         'seventeen', 'eighteen', 'nineteen'
+    //     ];
+    //     const b = [
+    //         '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+    //     ];
+
+    //     const numToWords = (n) => {
+    //         if (n < 20) return a[n];
+    //         if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+    //         if (n < 1000) return a[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numToWords(n % 100) : '');
+    //         if (n < 1000000) return numToWords(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + numToWords(n % 1000) : '');
+    //         return n.toString(); // fallback for large numbers
+    //     };
+
+    //     return numToWords(Number(num));
+    // };
+
+    // const preprocessMathExpression = (expression) => {
+    //     const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
+    //     let result = [];
+
+    //     tokens.forEach(token => {
+    //         token = token.trim();
+    //         if (!token) return;
+
+    //         // Handle factorial – remove !, speak as number
+    //         if (/^\d{1,3}(,\d{3})*!$/.test(token)) {
+    //             const number = token.slice(0, -1).replace(/,/g, '');
+    //             result.push(numberToWords(number));
+    //         }
+    //         // Handle comma-separated numbers (e.g., 1,000)
+    //         else if (/^\d{1,3}(,\d{3})*$/.test(token)) {
+    //             const number = token.replace(/,/g, '');
+    //             result.push(numberToWords(number));
+    //         }
+    //         // Plain number
+    //         else if (/^\d+$/.test(token)) {
+    //             result.push(numberToWords(token));
+    //         }
+    //         // Operators
+    //         else if (token === '-') {
+    //             result.push('minus');
+    //         } else if (token === '+') {
+    //             result.push('plus');
+    //         }
+    //     });
+
+    //     if (result.length > 0) {
+    //         result.push('that is');
+    //         return result.join(' ').replace(/\s+/g, ' ');
+    //     }
+
+    //     return expression;
+    // };
+
+
+
+    // const speakText = (text, id) => {
+    //     const speakNow = () => {
+    //         const processedText = preprocessMathExpression(text) || text;
+    //         console.log("Speaking:", processedText);
+    //         const utterance = new SpeechSynthesisUtterance(processedText);
+    //         utterance.lang = 'en-IN';
+
+    //         const voices = window.speechSynthesis.getVoices();
+    //         const selectedVoice = voices.find(v =>
+    //             v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
+    //         );
+    //         if (selectedVoice) utterance.voice = selectedVoice;
+
+    //         utterance.rate = voiceSettings?.voice_rate || 1;
+    //         utterance.pitch = voiceSettings?.voice_pitch || 1;
+    //         utterance.volume = voiceSettings?.voice_volume || 1;
+
+    //         utterance.onend = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+    //         utterance.onerror = () => updateSpeechState(id, { isSpeaking: false, isPaused: false });
+
+    //         updateSpeechState(id, { isSpeaking: true, isPaused: false });
+
+    //         window.speechSynthesis.cancel();
+    //         window.speechSynthesis.speak(utterance);
+    //     };
+
+    //     const voices = window.speechSynthesis.getVoices();
+    //     if (voices.length === 0) {
+    //         window.speechSynthesis.onvoiceschanged = () => {
+    //             speakNow();
+    //             window.speechSynthesis.onvoiceschanged = null;
+    //         };
+    //     } else {
+    //         speakNow();
+    //     }
+    // };
+
+
+
+
     const preprocessMathExpression = (expression) => {
         const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
         let result = [];
@@ -166,32 +268,56 @@ const RecentPlayed = () => {
 
 
     const speakText = (text, id) => {
-        const parts = preprocessMathExpression(text);
-        const combinedText = parts
-            .map(part => (part === '__PAUSE__' ? '.' : part)) // Add period for natural pause
-            .join(' ');
+        const speakNow = () => {
+            const parts = preprocessMathExpression(text); // returns array with __PAUSE__
+            console.log("Speaking parts:", parts);
 
-        const voices = window.speechSynthesis.getVoices();
-        const selectedVoice = voices.find(v =>
-            v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
-        );
+            let voices = window.speechSynthesis.getVoices();
+            const selectedVoice = voices.find(v =>
+                v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
+            );
 
-        const utterance = new SpeechSynthesisUtterance(combinedText);
-        utterance.lang = 'en-IN';
-        if (selectedVoice) utterance.voice = selectedVoice;
-        utterance.rate = voiceSettings?.voice_rate || 1;
-        utterance.pitch = voiceSettings?.voice_pitch || 1;
-        utterance.volume = voiceSettings?.voice_volume || 1;
+            const speakParts = (index = 0) => {
+                if (index >= parts.length) {
+                    updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                    return;
+                }
 
-        utterance.onend = () => {
-            updateSpeechState(id, { isSpeaking: false, isPaused: false });
+                const part = parts[index];
+
+                if (part === '__PAUSE__') {
+                    setTimeout(() => speakParts(index + 1), 300); // 0.5-second pause
+
+                } else {
+                    const utterance = new SpeechSynthesisUtterance(part);
+                    utterance.lang = 'en-IN';
+                    if (selectedVoice) utterance.voice = selectedVoice;
+                    utterance.rate = voiceSettings?.voice_rate || 1;
+                    utterance.pitch = voiceSettings?.voice_pitch || 1;
+                    utterance.volume = voiceSettings?.voice_volume || 1;
+
+                    utterance.onend = () => speakParts(index + 1);
+                    utterance.onerror = () => speakParts(index + 1);
+
+                    window.speechSynthesis.speak(utterance);
+                }
+            };
+
+            window.speechSynthesis.cancel();
+            updateSpeechState(id, { isSpeaking: true, isPaused: false });
+            speakParts();
         };
 
-        window.speechSynthesis.cancel(); // Cancel any previous
-        window.speechSynthesis.speak(utterance);
-        updateSpeechState(id, { isSpeaking: true, isPaused: false });
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                speakNow();
+                window.speechSynthesis.onvoiceschanged = null;
+            };
+        } else {
+            speakNow();
+        }
     };
-
 
 
     const handleOpen = (question) => {
@@ -218,16 +344,10 @@ const RecentPlayed = () => {
         const userAnswer = answer.trim();
         const correctAnswer = currentQuestion.answer?.trim();
 
-        // setSubmitted(prev => ({
-        //     ...prev,
-        //     [currentQuestion.id]: true
-        // }));
-
         setSubmitted(prev => ({
             ...prev,
-            [currentQuestion.id]: userAnswer === correctAnswer ? 'correct' : 'wrong'
+            [currentQuestion.id]: true
         }));
-
 
         if (userAnswer === correctAnswer) {
             setResult('correct');
@@ -260,11 +380,7 @@ const RecentPlayed = () => {
                                     window.speechSynthesis.pause();
                                     updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
                                 };
-                                const handleResume = () => {
-                                    window.speechSynthesis.resume();
-                                    updateSpeechState(item.id, { isPaused: false, isSpeaking: true });
-                                };
-
+                                
                                 const cardActive = () => {
                                     if (!isActive) {
                                         handleReady();
@@ -284,17 +400,9 @@ const RecentPlayed = () => {
                                             onClick={cardActive}
                                             style={{ cursor: 'pointer' }}
                                         >
-                                            {/* {submitted[item.id] && (
-                                                <span className="badge bg-success position-absolute top-0 end-0 m-2">✔ Answered</span>
-                                            )} */}
-
-                                            {submitted[item.id] === 'correct' && (
+                                            {submitted[item.id] && (
                                                 <span className="badge bg-success position-absolute top-0 end-0 m-2">✔ Answered</span>
                                             )}
-                                            {submitted[item.id] === 'wrong' && (
-                                                <span className="badge bg-danger position-absolute top-0 end-0 m-2">✔ Answered</span>
-                                            )}
-
                                             <div className="card-body p-2">
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
@@ -309,15 +417,6 @@ const RecentPlayed = () => {
                                                     <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive}>Question</button>
                                                     <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={() => handleOpen(item)} disabled={!isActive}>Answer</button>
                                                     <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop} disabled={!isActive}>Stop</button>
-                                                    {/* {speechState[item.id]?.isPaused && (
-                                                        <button
-                                                            className="btn btn-blue rounded-pill fs-20 mb-2"
-                                                            onClick={handleResume}
-                                                            disabled={!isActive}
-                                                        >
-                                                            Resume
-                                                        </button>
-                                                    )} */}
                                                 </div>
                                             </div>
                                         </div>
