@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Logo from '../assets/images/abacusLogo.png';
 import { Link, useNavigate } from 'react-router-dom';
-// import FaceRecognitionLogin from '../components/FaceRecogination';
+
 
 const URL = import.meta.env.VITE_URL;
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  // const [showFaceRecognition, setShowFaceRecognition] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [formErrors, setFormErrors] = useState({ username: '', password: '' });
 
@@ -78,6 +77,49 @@ const Login = () => {
     }
   };
 
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validate()) return;
+
+  //   try {
+  //     const bodyFormData = new FormData();
+  //     bodyFormData.append('username', formData.username);
+  //     bodyFormData.append('password', formData.password);
+
+  //     const response = await fetch(`${URL}/studentLogin`, {
+  //       method: 'POST',
+  //       body: bodyFormData,
+  //     });
+
+  //     // Check for 401 status before parsing JSON
+  //     if (response.status === 401) {
+  //       const errorData = await response.json();
+  //       if (errorData.message === 'Logged in elsewhere') {
+  //         sessionStorage.clear();
+  //         window.location.href = '/login';
+  //         return;
+  //       }
+  //     }
+
+  //     const data = await response.json();
+
+  //     if (data.status === 'true') {
+  //       sessionStorage.setItem('token', data?.token);
+  //       sessionStorage.setItem('session_token', data?.session_token || '');
+  //       sessionStorage.setItem('data', JSON.stringify(data?.response?.user_data));
+  //       sessionStorage.setItem('userId', JSON.stringify(data?.response?.user_data?.student_id));
+  //       navigate('/home');
+  //     } else {
+  //       alert(data.message || 'Login failed');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     alert('Something went wrong. Please try again.');
+  //   }
+  // };
+
+
   const togglePassword = (e) => {
     e.preventDefault();
     setShowPassword((prev) => !prev);
@@ -85,24 +127,7 @@ const Login = () => {
 
   return (
     <>
-      {/* {showFaceRecognition ? (
-        <FaceRecognitionLogin
-          onSuccess={(recognizedUser) => {
-            setShowFaceRecognition(false);
 
-            if (recognizedUser?.username && recognizedUser?.password) {
-              setFormData({
-                username: recognizedUser.username,
-                password: recognizedUser.password
-              });
-              setTimeout(() => {
-                document.getElementById('login-btn')?.click();
-              }, 500);
-            }
-          }}
-          onCancel={() => setShowFaceRecognition(false)}
-        />
-      ) : ( */}
       <div className="main-container login-page">
         <div className="container-fluid">
           <div className="container">
