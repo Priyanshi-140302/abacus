@@ -223,10 +223,21 @@ const RecentPlayed = () => {
         //     [currentQuestion.id]: true
         // }));
 
-        setSubmitted(prev => ({
-            ...prev,
-            [currentQuestion.id]: userAnswer === correctAnswer ? 'correct' : 'wrong'
-        }));
+        // setSubmitted(prev => ({
+        //     ...prev,
+        //     [currentQuestion.id]: userAnswer === correctAnswer ? 'correct' : 'wrong'
+        // }));
+
+        setSubmitted(prev => {
+            const updated = {
+                ...prev,
+                [currentQuestion.id]: userAnswer === correctAnswer ? 'correct' : 'wrong'
+            };
+
+            sessionStorage.setItem('submittedAnswers', JSON.stringify(updated));
+            return updated;
+        });
+
 
 
         if (userAnswer === correctAnswer) {
@@ -244,6 +255,14 @@ const RecentPlayed = () => {
             speakText(currentQuestion.question, currentQuestion.id);
         }
     };
+
+    useEffect(() => {
+        const stored = sessionStorage.getItem('submittedAnswers');
+        if (stored) {
+            setSubmitted(JSON.parse(stored));
+        }
+    }, []);
+
 
     return (
         <>
@@ -266,9 +285,9 @@ const RecentPlayed = () => {
                                 };
 
                                 const cardActive = () => {
-                                    if (!isActive) {
-                                        handleReady();
-                                    }
+                                    // if (!isActive) {
+                                    //     handleReady();
+                                    // }
                                     setActiveCardId(item.id);
                                 }
 
