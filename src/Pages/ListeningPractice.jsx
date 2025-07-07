@@ -10,6 +10,7 @@ const ListeningPractice = () => {
     const [data, setData] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1); // to store total pages
+    const [loaded, setLoaded] = useState(false);
 
 
     const getData = async () => {
@@ -46,13 +47,18 @@ const ListeningPractice = () => {
     useEffect(() => {
         const savedPage = Number(sessionStorage.getItem('listeningPage')) || 1;
         setPage(savedPage);
+        setLoaded(true); // Only load data after setting page
     }, []);
+
 
     // Whenever page changes
     useEffect(() => {
-        sessionStorage.setItem('listeningPage', page);
-        getData();
-    }, [page]);
+        if (loaded) {
+            sessionStorage.setItem('listeningPage', page);
+            getData();
+        }
+    }, [page, loaded]);
+
 
 
 

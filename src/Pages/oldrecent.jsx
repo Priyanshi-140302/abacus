@@ -92,82 +92,106 @@ const RecentPlayed = () => {
     }, []);
 
 
-    const numberToIndianWords = (num) => {
+    const numberToWords = (num) => {
         const a = [
             '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
-            'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
-            'sixteen', 'seventeen', 'eighteen', 'nineteen'
+            'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+            'seventeen', 'eighteen', 'nineteen'
         ];
-        const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        const b = [
+            '', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'
+        ];
 
-        const convert = (n) => {
+        const numToWords = (n) => {
+            if (n === 0) return 'zero';
             if (n < 20) return a[n];
             if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
-            if (n < 1000) return a[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + convert(n % 100) : '');
-            if (n < 100000) return convert(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + convert(n % 1000) : '');
-            if (n < 10000000) return convert(Math.floor(n / 100000)) + ' lakh' + (n % 100000 ? ' ' + convert(n % 100000) : '');
-            return convert(Math.floor(n / 10000000)) + ' crore' + (n % 10000000 ? ' ' + convert(n % 10000000) : '');
+            if (n < 1000) return a[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numToWords(n % 100) : '');
+            if (n < 100000) return numToWords(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + numToWords(n % 1000) : '');
+            if (n < 10000000) return numToWords(Math.floor(n / 100000)) + ' lakh' + (n % 100000 ? ' ' + numToWords(n % 100000) : '');
+            return numToWords(Math.floor(n / 10000000)) + ' crore' + (n % 10000000 ? ' ' + numToWords(n % 10000000) : '');
         };
 
-        return convert(Number(num)).trim();
+        return numToWords(Number(num));
     };
 
+    const preprocessMathExpression = (expression) => {
+        const tokens = expression.split(/([0-9,]+!|[0-9,]+|[+\-])/).filter(Boolean);
+        let result = [];
+        let prevTokenWasNumber = false;
 
-    const convertTextWithIndianNumbersOnly = (text) => {
-        return text.replace(/(\d+)!|(\d+)|([+\-*/=])/g, (match, factorial, number, operator) => {
-            if (factorial) {
-                return match; // keep factorials like "2!" as-is
-            } else if (number) {
-                const word = numberToIndianWords(Number(number));
-                return word;
-            } else if (operator) {
-                switch (operator) {
-                    case '+': return 'plus';
-                    case '-': return 'minus';
-                    case '*': return 'times';
-                    case '/': return 'divided by';
-                    case '=': return 'equals';
-                    default: return operator;
-                }
+        tokens.forEach(token => {
+            token = token.trim();
+            if (!token) return;
+
+            let isNumberLike = false;
+
+            // Handle factorial
+            if (/^\d{1,3}(,\d{3})*!$/.test(token)) {
+                const number = token.slice(0, -1).replace(/,/g, '');
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
+                result.push(numberToWords(number));
             }
-            return match;
+            // Handle comma-separated number
+            else if (/^\d{1,3}(,\d{3})*$/.test(token)) {
+                const number = token.replace(/,/g, '');
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
+                result.push(numberToWords(number));
+            }
+            // Plain number
+            else if (/^\d+$/.test(token)) {
+                isNumberLike = true;
+                if (prevTokenWasNumber) result.push('__PAUSE__');
+                result.push(numberToWords(token));
+            }
+            // Operators
+            else if (token === '-') {
+                result.push('minus');
+            } else if (token === '+') {
+                result.push('plus');
+            }
+
+            prevTokenWasNumber = isNumberLike;
         });
+
+        if (result.length > 0) {
+            result.push('that is');
+            return result;
+        }
+
+        return [expression];
     };
 
 
-    const speakText = (text, id, shouldAppend = true) => {
-        const cleanText = convertTextWithIndianNumbersOnly(text);
-        const finalText = shouldAppend ? `${cleanText} '' that is` : cleanText;
+    const speakText = (text, id) => {
+        const parts = preprocessMathExpression(text);
+        const combinedText = parts
+            .map(part => (part === '__PAUSE__' ? '.' : part)) // Add period for natural pause
+            .join(' ');
 
-        const utterance = new SpeechSynthesisUtterance(finalText);
-        utterance.lang = 'en-US';
-        utterance.volume = 1;
-        utterance.rate = 0.9;           // Match Laravel
-        utterance.pitch = 1;            // Match Laravel
+        const voices = window.speechSynthesis.getVoices();
+        const selectedVoice = voices.find(v =>
+            v.name === voiceSettings?.voice_language || v.name === 'Google UK English Female'
+        );
 
-        const loadAndSpeak = () => {
-            const voices = window.speechSynthesis.getVoices();
-            const selectedVoice = voices.find(v => v.name.includes("Google US English")); // more reliable
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
+        const utterance = new SpeechSynthesisUtterance(combinedText);
+        utterance.lang = 'en-IN';
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.rate = voiceSettings?.voice_rate || 1;
+        utterance.pitch = voiceSettings?.voice_pitch || 1;
+        utterance.volume = voiceSettings?.voice_volume || 1;
 
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-
-            updateSpeechState(id, { isSpeaking: true, isPaused: false });
-
-            utterance.onend = () => {
-                updateSpeechState(id, { isSpeaking: false, isPaused: false });
-            };
+        utterance.onend = () => {
+            updateSpeechState(id, { isSpeaking: false, isPaused: false });
         };
 
-        if (window.speechSynthesis.getVoices().length > 0) {
-            loadAndSpeak();
-        } else {
-            window.speechSynthesis.onvoiceschanged = loadAndSpeak;
-        }
+        window.speechSynthesis.cancel(); // Cancel any previous
+        window.speechSynthesis.speak(utterance);
+        updateSpeechState(id, { isSpeaking: true, isPaused: false });
     };
+
 
 
     const handleOpen = (question) => {
@@ -193,6 +217,16 @@ const RecentPlayed = () => {
 
         const userAnswer = answer.trim();
         const correctAnswer = currentQuestion.answer?.trim();
+
+        // setSubmitted(prev => ({
+        //     ...prev,
+        //     [currentQuestion.id]: true
+        // }));
+
+        // setSubmitted(prev => ({
+        //     ...prev,
+        //     [currentQuestion.id]: userAnswer === correctAnswer ? 'correct' : 'wrong'
+        // }));
 
         setSubmitted(prev => {
             const updated = {
@@ -239,14 +273,21 @@ const RecentPlayed = () => {
                         <div className="row py-4">
                             {data?.data?.map((item, index) => {
                                 const isActive = item.id === activeCardId;
-                                const handleReady = () => speakText("Ready", item.id, false); // ✅ correct
-
+                                const handleReady = () => speakText("Ready", item.id);
                                 const handleQuestion = () => speakText(item.question, item.id);
                                 const handleStop = () => {
                                     window.speechSynthesis.pause();
                                     updateSpeechState(item.id, { isPaused: true, isSpeaking: false });
                                 };
+                                const handleResume = () => {
+                                    window.speechSynthesis.resume();
+                                    updateSpeechState(item.id, { isPaused: false, isSpeaking: true });
+                                };
+
                                 const cardActive = () => {
+                                    // if (!isActive) {
+                                    //     handleReady();
+                                    // }
                                     setActiveCardId(item.id);
                                 }
 
@@ -262,6 +303,9 @@ const RecentPlayed = () => {
                                             onClick={cardActive}
                                             style={{ cursor: 'pointer' }}
                                         >
+                                            {/* {submitted[item.id] && (
+                                                <span className="badge bg-success position-absolute top-0 end-0 m-2">✔ Answered</span>
+                                            )} */}
 
                                             {submitted[item.id] === 'correct' && (
                                                 <span className="badge bg-success position-absolute top-0 end-0 m-2">✔ Answered</span>
@@ -284,7 +328,15 @@ const RecentPlayed = () => {
                                                     <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive}>Question</button>
                                                     <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={() => handleOpen(item)} disabled={!isActive}>Answer</button>
                                                     <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop} disabled={!isActive}>Stop</button>
-
+                                                    {/* {speechState[item.id]?.isPaused && (
+                                                        <button
+                                                            className="btn btn-blue rounded-pill fs-20 mb-2"
+                                                            onClick={handleResume}
+                                                            disabled={!isActive}
+                                                        >
+                                                            Resume
+                                                        </button>
+                                                    )} */}
                                                 </div>
                                             </div>
                                         </div>
