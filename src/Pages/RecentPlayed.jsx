@@ -148,7 +148,7 @@ const RecentPlayed = () => {
 
         const utterance = new SpeechSynthesisUtterance(finalText);
         utterance.lang = 'en-US';
-        utterance.rate = voiceSettings?.voice_rate || 1;
+        utterance.rate = voiceSettings?.voice_rate || 0.9;
         utterance.pitch = voiceSettings?.voice_pitch || 1;
         utterance.volume = voiceSettings?.voice_volume || 1;
 
@@ -175,6 +175,10 @@ const RecentPlayed = () => {
             window.speechSynthesis.onvoiceschanged = loadAndSpeak;
         }
     };
+
+
+
+
 
 
     const handleOpen = (question) => {
