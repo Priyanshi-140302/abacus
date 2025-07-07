@@ -121,11 +121,13 @@ const RecentPlayed = () => {
         return text.replace(/(\d{1,3}(?:,\d{3})+)!?|(\d+)!|(\d+)|([+\-*/=])/g, (match, bigCommaNum, factorial, plainNum, operator) => {
             if (bigCommaNum) {
                 const number = parseInt(bigCommaNum.replace(/,/g, ''));
-                return numberToIndianWords(number);
+                return numberToIndianWords(number) + ', ';
+
             } else if (factorial) {
                 return match; // keep 2! as-is
             } else if (plainNum) {
-                return numberToIndianWords(Number(plainNum));
+                return numberToIndianWords(Number(plainNum)) + ', ';
+
             } else if (operator) {
                 switch (operator) {
                     case '+': return 'plus';
@@ -141,42 +143,81 @@ const RecentPlayed = () => {
     };
 
 
+    const speakChunks = (chunks, id, index = 0) => {
+    if (index >= chunks.length) {
+        updateSpeechState(id, { isSpeaking: false, isPaused: false });
+        return;
+    }
 
-    const speakText = (text, id, shouldAppend = true) => {
-        const cleanText = convertTextWithIndianNumbersOnly(text);
-        const finalText = shouldAppend ? `${cleanText} '' that is` : cleanText;
+    const utterance = new SpeechSynthesisUtterance(chunks[index]);
+    utterance.lang = 'en-US';
+    utterance.rate = voiceSettings?.voice_rate || 0.9;
+    utterance.pitch = voiceSettings?.voice_pitch || 1;
+    utterance.volume = voiceSettings?.voice_volume || 1;
 
-        const utterance = new SpeechSynthesisUtterance(finalText);
-        utterance.lang = 'en-US';
-        utterance.rate = voiceSettings?.voice_rate || 0.9;
-        utterance.pitch = voiceSettings?.voice_pitch || 1;
-        utterance.volume = voiceSettings?.voice_volume || 1;
+    const voices = window.speechSynthesis.getVoices();
+    const selectedVoice = voices.find(v => v.name.includes("Google US English"));
+    if (selectedVoice) utterance.voice = selectedVoice;
 
-        const loadAndSpeak = () => {
-            const voices = window.speechSynthesis.getVoices();
-            const selectedVoice = voices.find(v => v.name.includes("Google US English")); // more reliable
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
-
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-
-            updateSpeechState(id, { isSpeaking: true, isPaused: false });
-
-            utterance.onend = () => {
-                updateSpeechState(id, { isSpeaking: false, isPaused: false });
-            };
-        };
-
-        if (window.speechSynthesis.getVoices().length > 0) {
-            loadAndSpeak();
-        } else {
-            window.speechSynthesis.onvoiceschanged = loadAndSpeak;
-        }
+    utterance.onend = () => {
+        setTimeout(() => speakChunks(chunks, id, index + 1), 150); // add pause of 150ms
     };
 
+    window.speechSynthesis.speak(utterance);
+};
 
+
+    // const speakText = (text, id, shouldAppend = true) => {
+    //     const cleanText = convertTextWithIndianNumbersOnly(text);
+    //     const finalText = shouldAppend ? `${cleanText} '' that is` : cleanText;
+
+    //     const utterance = new SpeechSynthesisUtterance(finalText);
+    //     utterance.lang = 'en-US';
+    //     utterance.rate = voiceSettings?.voice_rate || 0.9;
+    //     utterance.pitch = voiceSettings?.voice_pitch || 1;
+    //     utterance.volume = voiceSettings?.voice_volume || 1;
+
+    //     const loadAndSpeak = () => {
+    //         const voices = window.speechSynthesis.getVoices();
+    //         const selectedVoice = voices.find(v => v.name.includes("Google US English")); // more reliable
+    //         if (selectedVoice) {
+    //             utterance.voice = selectedVoice;
+    //         }
+
+    //         window.speechSynthesis.cancel();
+    //         window.speechSynthesis.speak(utterance);
+
+    //         updateSpeechState(id, { isSpeaking: true, isPaused: false });
+
+    //         utterance.onend = () => {
+    //             updateSpeechState(id, { isSpeaking: false, isPaused: false });
+    //         };
+    //     };
+
+    //     if (window.speechSynthesis.getVoices().length > 0) {
+    //         loadAndSpeak();
+    //     } else {
+    //         window.speechSynthesis.onvoiceschanged = loadAndSpeak;
+    //     }
+    // };
+
+
+const speakText = (text, id, shouldAppend = true) => {
+    const cleanText = convertTextWithIndianNumbersOnly(text);
+    const finalText = shouldAppend ? `${cleanText} that is` : cleanText;
+
+    // Split into phrases based on punctuation or where numbers occur
+    const chunks = finalText.split(/(?<=[.,;!?])\s+|(?=\d{1,2}\s[a-z])/g).map(chunk => chunk.trim()).filter(Boolean);
+
+    window.speechSynthesis.cancel();
+    updateSpeechState(id, { isSpeaking: true, isPaused: false });
+
+    if (window.speechSynthesis.getVoices().length > 0) {
+        speakChunks(chunks, id);
+    } else {
+        window.speechSynthesis.onvoiceschanged = () => speakChunks(chunks, id);
+    }
+};
 
 
 
