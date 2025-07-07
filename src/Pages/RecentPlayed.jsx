@@ -92,7 +92,10 @@ const RecentPlayed = () => {
     }, []);
 
 
+
     const numberToIndianWords = (num) => {
+        num = parseInt(num);
+        if (isNaN(num)) return '';
         const a = [
             '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
             'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
@@ -100,26 +103,29 @@ const RecentPlayed = () => {
         ];
         const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 
-        const convert = (n) => {
-            if (n < 20) return a[n];
-            if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
-            if (n < 1000) return a[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + convert(n % 100) : '');
-            if (n < 100000) return convert(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + convert(n % 1000) : '');
-            if (n < 10000000) return convert(Math.floor(n / 100000)) + ' lakh' + (n % 100000 ? ' ' + convert(n % 100000) : '');
-            return convert(Math.floor(n / 10000000)) + ' crore' + (n % 10000000 ? ' ' + convert(n % 10000000) : '');
+        const inWords = (num) => {
+            if (num < 20) return a[num];
+            if (num < 100) return b[Math.floor(num / 10)] + (num % 10 ? ' ' + a[num % 10] : '');
+            if (num < 1000) return a[Math.floor(num / 100)] + ' hundred' + (num % 100 ? ' ' + inWords(num % 100) : '');
+            if (num < 100000) return inWords(Math.floor(num / 1000)) + ' thousand' + (num % 1000 ? ' ' + inWords(num % 1000) : '');
+            if (num < 10000000) return inWords(Math.floor(num / 100000)) + ' lakh' + (num % 100000 ? ' ' + inWords(num % 100000) : '');
+            return inWords(Math.floor(num / 10000000)) + ' crore' + (num % 10000000 ? ' ' + inWords(num % 10000000) : '');
         };
 
-        return convert(Number(num)).trim();
+        return inWords(parseInt(num)).trim();
     };
 
 
+
     const convertTextWithIndianNumbersOnly = (text) => {
-        return text.replace(/(\d+)!|(\d+)|([+\-*/=])/g, (match, factorial, number, operator) => {
-            if (factorial) {
-                return match; // keep factorials like "2!" as-is
-            } else if (number) {
-                const word = numberToIndianWords(Number(number));
-                return word;
+        return text.replace(/(\d{1,3}(?:,\d{3})+)!?|(\d+)!|(\d+)|([+\-*/=])/g, (match, bigCommaNum, factorial, plainNum, operator) => {
+            if (bigCommaNum) {
+                const number = parseInt(bigCommaNum.replace(/,/g, ''));
+                return numberToIndianWords(number);
+            } else if (factorial) {
+                return match; // keep 2! as-is
+            } else if (plainNum) {
+                return numberToIndianWords(Number(plainNum));
             } else if (operator) {
                 switch (operator) {
                     case '+': return 'plus';
@@ -135,15 +141,16 @@ const RecentPlayed = () => {
     };
 
 
+
     const speakText = (text, id, shouldAppend = true) => {
         const cleanText = convertTextWithIndianNumbersOnly(text);
         const finalText = shouldAppend ? `${cleanText} '' that is` : cleanText;
 
         const utterance = new SpeechSynthesisUtterance(finalText);
         utterance.lang = 'en-US';
-        utterance.volume = 1;
-        utterance.rate = 0.9;           // Match Laravel
-        utterance.pitch = 1;            // Match Laravel
+        utterance.rate = voiceSettings?.voice_rate || 1;
+        utterance.pitch = voiceSettings?.voice_pitch || 1;
+        utterance.volume = voiceSettings?.voice_volume || 1;
 
         const loadAndSpeak = () => {
             const voices = window.speechSynthesis.getVoices();
