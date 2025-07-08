@@ -120,7 +120,7 @@ const Profile = () => {
                                         {/* Optional: Display user image if available */}
                                         {data?.image && (
                                             <div className="mb-3 text-center">
-                                                <img src={data.image} alt="User" className="img-fluid rounded-circle border" style={{ maxWidth: "120px" }} />
+                                                <img src={data.imagePath} alt="User" className="img-fluid rounded-circle border" style={{ maxWidth: "120px" }} />
                                             </div>
                                         )}
 

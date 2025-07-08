@@ -15,6 +15,7 @@ const RecentPlayed = () => {
     const [voiceSettings, setVoiceSettings] = useState(null);
     const [submitted, setSubmitted] = useState({});
     const [currentQuestion, setCurrentQuestion] = useState(null);
+    const [canAnswer, setCanAnswer] = useState({});
 
     const [data, setData] = useState();
     const [page, setPage] = useState(1);
@@ -144,80 +145,45 @@ const RecentPlayed = () => {
 
 
     const speakChunks = (chunks, id, index = 0) => {
-    if (index >= chunks.length) {
-        updateSpeechState(id, { isSpeaking: false, isPaused: false });
-        return;
-    }
+        if (index >= chunks.length) {
+            updateSpeechState(id, { isSpeaking: false, isPaused: false });
+            setCanAnswer(prev => ({ ...prev, [id]: true }));  // ✅ enable answer
+            return;
+        }
 
-    const utterance = new SpeechSynthesisUtterance(chunks[index]);
-    utterance.lang = 'en-US';
-    utterance.rate = voiceSettings?.voice_rate || 0.9;
-    utterance.pitch = voiceSettings?.voice_pitch || 1;
-    utterance.volume = voiceSettings?.voice_volume || 1;
+        const utterance = new SpeechSynthesisUtterance(chunks[index]);
+        utterance.lang = 'en-US';
+        utterance.rate = voiceSettings?.voice_rate || 0.9;
+        utterance.pitch = voiceSettings?.voice_pitch || 1;
+        utterance.volume = voiceSettings?.voice_volume || 1;
 
-    const voices = window.speechSynthesis.getVoices();
-    const selectedVoice = voices.find(v => v.name.includes("Google US English"));
-    if (selectedVoice) utterance.voice = selectedVoice;
+        const voices = window.speechSynthesis.getVoices();
+        const selectedVoice = voices.find(v => v.name.includes("Google US English"));
+        if (selectedVoice) utterance.voice = selectedVoice;
 
-    utterance.onend = () => {
-        setTimeout(() => speakChunks(chunks, id, index + 1), 150); // add pause of 150ms
+        utterance.onend = () => {
+            setTimeout(() => speakChunks(chunks, id, index + 1), 150); // add pause of 150ms
+        };
+
+        window.speechSynthesis.speak(utterance);
     };
 
-    window.speechSynthesis.speak(utterance);
-};
+    const speakText = (text, id, shouldAppend = true) => {
+        const cleanText = convertTextWithIndianNumbersOnly(text);
+        const finalText = shouldAppend ? `${cleanText} that is` : cleanText;
 
+        // Split into phrases based on punctuation or where numbers occur
+        const chunks = finalText.split(/(?<=[.,;!?])\s+|(?=\d{1,2}\s[a-z])/g).map(chunk => chunk.trim()).filter(Boolean);
 
-    // const speakText = (text, id, shouldAppend = true) => {
-    //     const cleanText = convertTextWithIndianNumbersOnly(text);
-    //     const finalText = shouldAppend ? `${cleanText} '' that is` : cleanText;
-
-    //     const utterance = new SpeechSynthesisUtterance(finalText);
-    //     utterance.lang = 'en-US';
-    //     utterance.rate = voiceSettings?.voice_rate || 0.9;
-    //     utterance.pitch = voiceSettings?.voice_pitch || 1;
-    //     utterance.volume = voiceSettings?.voice_volume || 1;
-
-    //     const loadAndSpeak = () => {
-    //         const voices = window.speechSynthesis.getVoices();
-    //         const selectedVoice = voices.find(v => v.name.includes("Google US English")); // more reliable
-    //         if (selectedVoice) {
-    //             utterance.voice = selectedVoice;
-    //         }
-
-    //         window.speechSynthesis.cancel();
-    //         window.speechSynthesis.speak(utterance);
-
-    //         updateSpeechState(id, { isSpeaking: true, isPaused: false });
-
-    //         utterance.onend = () => {
-    //             updateSpeechState(id, { isSpeaking: false, isPaused: false });
-    //         };
-    //     };
-
-    //     if (window.speechSynthesis.getVoices().length > 0) {
-    //         loadAndSpeak();
-    //     } else {
-    //         window.speechSynthesis.onvoiceschanged = loadAndSpeak;
-    //     }
-    // };
-
-
-const speakText = (text, id, shouldAppend = true) => {
-    const cleanText = convertTextWithIndianNumbersOnly(text);
-    const finalText = shouldAppend ? `${cleanText} that is` : cleanText;
-
-    // Split into phrases based on punctuation or where numbers occur
-    const chunks = finalText.split(/(?<=[.,;!?])\s+|(?=\d{1,2}\s[a-z])/g).map(chunk => chunk.trim()).filter(Boolean);
-
-    window.speechSynthesis.cancel();
-    updateSpeechState(id, { isSpeaking: true, isPaused: false });
-
-    if (window.speechSynthesis.getVoices().length > 0) {
-        speakChunks(chunks, id);
-    } else {
-        window.speechSynthesis.onvoiceschanged = () => speakChunks(chunks, id);
-    }
-};
+        window.speechSynthesis.cancel();
+        updateSpeechState(id, { isSpeaking: true, isPaused: false });
+        setCanAnswer(prev => ({ ...prev, [id]: false }));  // 🔒 disable before speech
+        if (window.speechSynthesis.getVoices().length > 0) {
+            speakChunks(chunks, id);
+        } else {
+            window.speechSynthesis.onvoiceschanged = () => speakChunks(chunks, id);
+        }
+    };
 
 
 
@@ -324,7 +290,7 @@ const speakText = (text, id, shouldAppend = true) => {
 
                                             <div className="card-body p-2">
                                                 <div className="d-flex justify-content-between align-items-center mb-3">
-                                                    <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {index + 1}</h6>
+                                                    <h6 className="text-505050 fw-semibold mb-0 fs-20">Q. No : {(page - 1) * 10 + index + 1}</h6>
                                                     <div className={`${isActive ? 'd-block' : 'd-none'}`}>
                                                         {!submitted[item.id] && (
                                                             <SoundWave />
@@ -334,7 +300,15 @@ const speakText = (text, id, shouldAppend = true) => {
                                                 <div className="d-flex flex-wrap justify-content-between align-items-center">
                                                     <button className="btn btn-yellow rounded-pill fs-20 mb-2" onClick={handleReady} disabled={!isActive}>Ready</button>
                                                     <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive}>Question</button>
-                                                    <button className="btn btn-green rounded-pill fs-20 mb-2" onClick={() => handleOpen(item)} disabled={!isActive}>Answer</button>
+                                                  
+                                                    <button
+  className="btn btn-green rounded-pill fs-20 mb-2"
+  onClick={() => handleOpen(item)}
+  disabled={!isActive || !canAnswer[item.id]} // ✅ disable until question read
+>
+  Answer
+</button>
+
                                                     <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop} disabled={!isActive}>Stop</button>
 
                                                 </div>
