@@ -117,12 +117,12 @@ const Profile = () => {
                                             <h2 className="form-control fs-4 fw-bolder rounded-4">{data?.username || "N/A"}</h2>
                                         </div>
 
-                                        <div className="mb-3">
+                                        {/* <div className="mb-3">
                                             <label htmlFor="studentId" className="form-label fw-semibold text-dark fs-5">
                                                 <i className="bi bi-hash text-primary me-1"></i> Student ID:
                                             </label>
                                             <div className="form-control">{data?.student_id || "N/A"}</div>
-                                        </div>
+                                        </div> */}
 
                                         <div className="mb-3">
                                             <label htmlFor="name" className="form-label fw-semibold text-dark fs-5">
@@ -138,7 +138,7 @@ const Profile = () => {
                                             <div className="form-control">{data?.mobile || "N/A"}</div>
                                         </div>
 
-                                        <div className="mb-3">
+                                        {/* <div className="mb-3">
                                             <label htmlFor="altMobile" className="form-label fw-semibold text-dark fs-5">
                                                 <i className="bi bi-telephone-outbound-fill text-primary me-1"></i> Alternate Mobile:
                                             </label>
@@ -164,7 +164,7 @@ const Profile = () => {
                                                 <i className="bi bi-layers-fill text-primary me-1"></i> Level:
                                             </label>
                                             <div className="form-control">{data?.level_name || "N/A"}</div>
-                                        </div>
+                                        </div> */}
 
                                         {/* Optional: Display user image if available */}
                                         {data?.imagePath && (
