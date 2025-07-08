@@ -221,6 +221,11 @@ button:disabled {
   }
 }
 
+.capture-modal{
+  background: linear-gradient(167.87deg, #002B27 0%, #000000 99.39%);
+  min-height:100vh;
+}
+
 /* Login-Page end */
 
 /* Header start */
@@ -295,6 +300,11 @@ button:disabled {
       top: -100px;
     }
   }
+}
+
+.capture-modal {
+  background: linear-gradient(167.87deg, #002B27 0%, #000000 99.39%);
+  min-height: 100vh;
 }
 
 /* Modal end */
