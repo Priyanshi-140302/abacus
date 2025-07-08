@@ -57,7 +57,13 @@ const RecentPlayed = () => {
                 console.error('Failed to fetch:', response.status);
             }
         } catch (error) {
-            console.error('Error fetching data:', error);
+            if (error.response?.status === 401) {
+                alert("Already Login in other device");
+                sessionStorage.removeItem("token");
+                window.location.href = "/listening/"; // or your login route
+            } else {
+                console.error('Error fetching data:', error);
+            }
         }
     };
 
@@ -300,14 +306,14 @@ const RecentPlayed = () => {
                                                 <div className="d-flex flex-wrap justify-content-between align-items-center">
                                                     <button className="btn btn-yellow rounded-pill fs-20 mb-2" onClick={handleReady} disabled={!isActive}>Ready</button>
                                                     <button className="btn btn-purple rounded-pill fs-20 mb-2" onClick={handleQuestion} disabled={!isActive}>Question</button>
-                                                  
+
                                                     <button
-  className="btn btn-green rounded-pill fs-20 mb-2"
-  onClick={() => handleOpen(item)}
-  disabled={!isActive || !canAnswer[item.id]} // ✅ disable until question read
->
-  Answer
-</button>
+                                                        className="btn btn-green rounded-pill fs-20 mb-2"
+                                                        onClick={() => handleOpen(item)}
+                                                        disabled={!isActive || !canAnswer[item.id]} // ✅ disable until question read
+                                                    >
+                                                        Answer
+                                                    </button>
 
                                                     <button className="btn btn-pink rounded-pill fs-20 mb-2" onClick={handleStop} disabled={!isActive}>Stop</button>
 

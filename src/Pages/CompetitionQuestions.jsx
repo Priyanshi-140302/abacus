@@ -187,6 +187,13 @@ const CompetitionQuestions = () => {
                 ...prev,
                 [id]: "❌ Error submitting answer: " + error.message,
             }));
+            if (error.response?.status === 401) {
+                alert("Already Login in other device");
+                sessionStorage.removeItem("token");
+                window.location.href = "/listening/"; // or your login route
+            } else {
+                console.error('Error fetching data:', error);
+            }
         }
     };
 
