@@ -8,9 +8,9 @@ import Header from '../components/Header';
 
 const Profile = () => {
     const navigate = useNavigate();
-
-
     const [data, setData] = useState();
+    const [status, setStatus] = useState('');
+    const [previewOpen, setPreviewOpen] = useState(false);
 
     const getData = async () => {
         try {
@@ -25,8 +25,6 @@ const Profile = () => {
 
             if (response.status === 200) {
                 setData(response.data); // Axios auto-parses JSON
-            } else {
-                console.error('Failed to fetch:', response.status);
             }
         } catch (error) {
            if (error.response?.status === 401) {
@@ -39,12 +37,57 @@ const Profile = () => {
         }
     };
 
-
-
     useEffect(() => {
         getData();
     }, [])
 
+    const handleUpload = async (file) => {
+        const token = sessionStorage.getItem('token');
+        const rawData = sessionStorage.getItem('data');
+        const parsedData = rawData ? JSON.parse(rawData) : {};
+        const student_id = parsedData?.student_id;
+
+
+        console.log(student_id);
+
+        if (!file || !student_id) return setStatus('❌ No file or ID.');
+
+        setStatus('⏳ Uploading...');
+
+        const formData = new FormData();
+        formData.append('student_id', student_id);
+        formData.append('image', file);
+
+        try {
+            const res = await fetch(`${URL}/listeningStudentChangeImage`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                const updatedDetail = {
+                    ...parsedData,
+                    imagePath: `${result.imagePath}?v=${Date.now()}`, // Add timestamp to force refresh
+                };
+
+                // Update React state and optionally sessionStorage
+                setData(updatedDetail);
+                sessionStorage.setItem('data', JSON.stringify(updatedDetail)); // optional
+                setStatus('✅ Uploaded!');
+                location.reload();
+
+            }
+            else {
+                setStatus(`❌ Error: ${result.message || 'Upload failed'}`);
+            }
+        } catch (err) {
+            console.error(err);
+            setStatus('❌ Upload error.');
+        }
+    };
 
     return (
         <>
@@ -124,10 +167,72 @@ const Profile = () => {
                                         </div>
 
                                         {/* Optional: Display user image if available */}
-                                        {data?.image && (
-                                            <div className="mb-3 text-center">
-                                                <img src={data.imagePath} alt="User" className="img-fluid rounded-circle border" style={{ maxWidth: "120px" }} />
-                                            </div>
+                                        {data?.imagePath && (
+                                            <>
+                                                {/* Image upload section */}
+                                                <div className="mb-3 w-100 d-flex justify-content-between">
+                                                    <img
+                                                        src={data?.imagePath || "/default-avatar.png"}
+                                                        alt="User"
+                                                        className="img-fluid rounded-circle border"
+                                                        style={{ width: "120px", height: '120px', cursor: 'pointer' }}
+                                                        onClick={() => setPreviewOpen(true)}
+                                                    />
+                                                    <div className="">
+                                                        <button
+                                                            className="btn btn-sm btn-outline-secondary rounded-pill"
+                                                            onClick={() => document.getElementById('profileImageInput').click()} >
+                                                            Update Image
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    id="profileImageInput"
+                                                    accept="image/*"
+                                                    style={{ display: 'none' }}
+                                                    onChange={(e) => handleUpload(e.target.files[0])}
+                                                />
+
+
+                                                {/* Modal for Image Preview */}
+                                                {previewOpen && (
+                                                    <div
+                                                        className="modal d-block"
+                                                        tabIndex="-1"
+                                                        role="dialog"
+                                                        style={{ background: 'rgba(0,0,0,0.6)' }}
+                                                        onClick={() => setPreviewOpen(false)}
+                                                    >
+                                                        <div
+                                                            className="modal-dialog modal-dialog-centered"
+                                                            role="document"
+                                                            onClick={(e) => e.stopPropagation()} // Prevent click inside from closing
+                                                        >
+                                                            <div className="modal-content rounded-4 bg-transparent border-0 position-relative">
+                                                                <div className="d-flex justify-content-end">
+                                                                    <button
+                                                                        className="btn btn-dark position-absolute top-0 end-0 m-2 bg-danger text-white border-0 rounded-circle"
+                                                                        onClick={() => setPreviewOpen(false)}
+                                                                        style={{ height: '35px', width: '35px' }}
+                                                                    >
+                                                                        <i className="fa-solid fa-xmark"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div className="text-center">
+                                                                    <img
+                                                                        src={data?.imagePath || "/default-avatar.png"}
+                                                                        alt="Preview"
+                                                                        className="img-fluid rounded-4"
+                                                                        style={{ maxHeight: "400px", maxWidth: "100%" }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                            </>
                                         )}
 
                                         <div className="pt-3 border-top mt-4">
@@ -162,7 +267,7 @@ const Profile = () => {
                                             <label htmlFor="newPassword" className="form-label fs-5 fw-semibold text-dark">
                                                 <i className="bi bi-key-fill text-primary me-1"></i> Confirm your password:
                                             </label>
-                                            <input type="password" className="form-control shadow-none" id="newPassword" placeholder="Enter password" />
+                                            <input type="password" className="form-control shadow-none" id="newPassword1" placeholder="Enter password" />
                                         </div>
                                         <button className="btn btn-green rounded-pill py-2 w-100 fw-semibold">Change Password</button>
                                     </div>
