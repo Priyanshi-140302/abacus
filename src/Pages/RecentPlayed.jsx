@@ -34,6 +34,50 @@ const RecentPlayed = () => {
     };
 
 
+    // const getData = async () => {
+    //     try {
+    //         const token = sessionStorage.getItem('token');
+    //         const bodyFormData = new FormData();
+    //         bodyFormData.append('category_id', id);
+
+    //         const response = await axios.post(`${URL}/listening-questions`,
+    //             bodyFormData,
+    //             {
+    //                 params: { page: page },
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`,
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.status === 200) {
+    //             setData(response.data);
+    //             setTotalPages(response.data.total || 1);
+    //         } else {
+    //             console.error('Failed to fetch:', response.status);
+    //         }
+    //     } catch (error) {
+    //         if (error.response?.status === 401) {
+    //             alert("Already Login in other device");
+    //             sessionStorage.removeItem("token");
+    //             window.location.href = "/listening/"; // or your login route
+    //         } else {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     }
+    // };
+
+
+    const shuffleArray = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
+
     const getData = async () => {
         try {
             const token = sessionStorage.getItem('token');
@@ -51,21 +95,33 @@ const RecentPlayed = () => {
             );
 
             if (response.status === 200) {
-                setData(response.data);
+                const cacheKey = `shuffledPage_${id}_${page}`;
+                const cachedData = sessionStorage.getItem(cacheKey);
+
+                if (cachedData) {
+                    setData({ ...response.data, data: JSON.parse(cachedData) });
+                } else {
+                    const shuffledData = shuffleArray(response.data.data);
+                    sessionStorage.setItem(cacheKey, JSON.stringify(shuffledData));
+                    setData({ ...response.data, data: shuffledData });
+                }
+
                 setTotalPages(response.data.total || 1);
             } else {
                 console.error('Failed to fetch:', response.status);
             }
         } catch (error) {
             if (error.response?.status === 401) {
-                alert("Already Login in other device");
-                sessionStorage.removeItem("token");
-                window.location.href = "/listening/"; // or your login route
+                alert("Already logged in on another device");
+                sessionStorage.clear(); // ⬅️ also clear shuffled pages
+                window.location.href = "/listening/";
             } else {
                 console.error('Error fetching data:', error);
             }
         }
     };
+
+
 
     useEffect(() => {
         getData();
