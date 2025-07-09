@@ -27,7 +27,7 @@ const Profile = () => {
                 setData(response.data); // Axios auto-parses JSON
             }
         } catch (error) {
-           if (error.response?.status === 401) {
+            if (error.response?.status === 401) {
                 alert("Login in other device");
                 sessionStorage.removeItem("token");
                 window.location.href = "/listening/"; // or your login route

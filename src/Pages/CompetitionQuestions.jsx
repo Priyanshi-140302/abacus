@@ -122,11 +122,6 @@ const CompetitionQuestions = () => {
         };
     }, [examStarted, records, timerDuration, submitted, disqualified]);
 
-
-
-
-
-
     const handleInputChange = (e, id) => {
         setUserAnswers(prev => ({ ...prev, [id]: e.target.value }));
     };

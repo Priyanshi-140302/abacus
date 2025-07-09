@@ -33,41 +33,6 @@ const RecentPlayed = () => {
         }));
     };
 
-
-    // const getData = async () => {
-    //     try {
-    //         const token = sessionStorage.getItem('token');
-    //         const bodyFormData = new FormData();
-    //         bodyFormData.append('category_id', id);
-
-    //         const response = await axios.post(`${URL}/listening-questions`,
-    //             bodyFormData,
-    //             {
-    //                 params: { page: page },
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             }
-    //         );
-
-    //         if (response.status === 200) {
-    //             setData(response.data);
-    //             setTotalPages(response.data.total || 1);
-    //         } else {
-    //             console.error('Failed to fetch:', response.status);
-    //         }
-    //     } catch (error) {
-    //         if (error.response?.status === 401) {
-    //             alert("Already Login in other device");
-    //             sessionStorage.removeItem("token");
-    //             window.location.href = "/listening/"; // or your login route
-    //         } else {
-    //             console.error('Error fetching data:', error);
-    //         }
-    //     }
-    // };
-
-
     const shuffleArray = (array) => {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {

@@ -24,7 +24,6 @@ const ListeningPractice = () => {
                     'Content-Type': 'application/json',
                 },
             });
-
             if (response.status === 200) {
                 setData(response.data); // Axios auto-parses JSON
                 setTotalPages(response.data.total || 1);
@@ -42,13 +41,6 @@ const ListeningPractice = () => {
         }
     };
 
-
-
-    // useEffect(() => {
-    //     getData();
-    // }, [page])
-
-
     // On component mount
     useEffect(() => {
         const savedPage = Number(sessionStorage.getItem('listeningPage')) || 1;
@@ -64,9 +56,6 @@ const ListeningPractice = () => {
             getData();
         }
     }, [page, loaded]);
-
-
-
 
     return (
         <>
@@ -90,9 +79,6 @@ const ListeningPractice = () => {
                                     </>
                                 )
                             })}
-
-
-
                         </div>
 
                         <div className="d-flex justify-content-center align-items-center py-4 pagination-wrapper">
