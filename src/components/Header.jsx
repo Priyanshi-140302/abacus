@@ -1,10 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+const URL = import.meta.env.VITE_URL;
 import { Link } from 'react-router-dom';
 import profile from '../assets/images/profile.png';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ data }) => {
     const navigate = useNavigate();
+    const [datas, setDatas] = useState('');
+
+    const getData = async () => {
+        try {
+            const token = sessionStorage.getItem('token');
+
+            const response = await axios.get(`${URL}/user`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 200) {
+                setDatas(response.data); // Axios auto-parses JSON
+            }
+        } catch (error) {
+            if (error.response?.status === 401) {
+                alert("Login in other device");
+                sessionStorage.removeItem("token");
+                window.location.href = "/listening/"; // or your login route
+            } else {
+                console.error('Error fetching data:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        getData();
+    }, [])
 
     return (
         <div>
@@ -27,7 +59,9 @@ const Header = ({ data }) => {
                             <div className="col-3 text-end">
                                 <div className="dropdown">
                                     <button className="btn profile-btn dropdown-toggle border-0 rounded-circle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src={profile} alt="" className="" />
+                                        {/* {!datas.imagePath ? <img src={profile} alt="" className="" /> : } */}
+
+                                        <img src={datas.imagePath} alt="" className="rounded-circle" style={{ width: '55px', height: '55px' }} />
                                         <i className="fa-solid fa-angle-down text-white ms-2 fs-5"></i>
                                     </button>
                                     <ul className="dropdown-menu mt-4 me-4 border-0 shadow rounded-4 overflow-hidden">

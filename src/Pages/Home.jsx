@@ -160,25 +160,37 @@ const Home = () => {
                             <div className="d-flex justify-content-between align-items-center">
                                 {/* Open Camera Button - Only shows if camera is not yet opened */}
                                 {!cameraActive && !captured && (
-                                    <button
-                                        className="btn btn-green rounded-pill"
-                                        onClick={async () => {
-                                            setCameraActive(true);
-                                            try {
-                                                const stream = await navigator.mediaDevices.getUserMedia({
-                                                    video: { facingMode: 'user' },
-                                                    audio: false,
-                                                });
-                                                if (videoRef.current) {
-                                                    videoRef.current.srcObject = stream;
+                                    <div className="d-flex justify-content-between w-100">
+                                        <button
+                                            className="btn btn-green rounded-pill"
+                                            onClick={async () => {
+                                                setCameraActive(true);
+                                                try {
+                                                    const stream = await navigator.mediaDevices.getUserMedia({
+                                                        video: { facingMode: 'user' },
+                                                        audio: false,
+                                                    });
+                                                    if (videoRef.current) {
+                                                        videoRef.current.srcObject = stream;
+                                                    }
+                                                } catch (error) {
+                                                    setStatus("❌ Camera access denied.");
                                                 }
-                                            } catch (error) {
-                                                setStatus("❌ Camera access denied.");
-                                            }
-                                        }}
-                                    >
-                                        Open Camera
-                                    </button>
+                                            }}
+                                        >
+                                            Open Camera
+                                        </button>
+                                        <button
+                                            className="btn btn-secondary rounded-pill me-2 px-4"
+                                            onClick={() => {
+                                                setCameraActive(false);
+                                                setCaptured(null);
+                                                setShowModal(false);
+                                            }}
+                                        >
+                                            Skip
+                                        </button>
+                                    </div>
                                 )}
 
                                 {/* Capture Button */}

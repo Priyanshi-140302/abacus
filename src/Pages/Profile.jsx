@@ -94,7 +94,7 @@ const Profile = () => {
             <div className="main-container bg-theme profile-page">
 
 
-                <Header data={{ title: '', detail: 'Profile', description: '' }} />
+                <Header data={{ title: '', detail: 'Profile', description: '' ,}} />
                 <div className="container-fluid">
                     <div className="container py-5">
                         <div className="row g-4">
