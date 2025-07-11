@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { ref, onChildChanged } from "firebase/database";
+import { ref, onChildChanged, onValue } from "firebase/database";
+
 import { database } from "../firebase";
 import Logo from '../assets/images/abacusLogo.png';
 import checkGif from '../assets/images/checkGif.gif';
@@ -26,17 +27,26 @@ const Home = () => {
     const [cameraActive, setCameraActive] = useState(false);
 
     useEffect(() => {
-
-        if (!detail?.image) {
-            setShowModal(true);
-        }
-
         const settingsRef = ref(database, 'questions/settings');
 
+        // 1. Initial fetch of current settings
+        const fetchInitialSettings = onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            if (data.competition_start == 1 && data.competition_end != 1) {
+                setExamStarted(true);
+            }
+
+            if (data.competition_end == 1) {
+                setExamStarted(false);
+            }
+        });
+
+        // 2. Listen for changes
         const unsubscribe = onChildChanged(settingsRef, (snapshot) => {
             const key = snapshot.key;
             const value = snapshot.val();
-
 
             if (key === 'competition_start' && value == 1) {
                 setExamStarted(true);
@@ -47,7 +57,21 @@ const Home = () => {
             }
         });
 
-        return () => unsubscribe();
+        // Cleanup
+        return () => {
+            fetchInitialSettings(); // unsubscribe from onValue
+            unsubscribe(); // unsubscribe from onChildChanged
+        };
+    }, []);
+
+
+
+
+    useEffect(() => {
+
+        if (!detail?.image) {
+            setShowModal(true);
+        }
     }, [detail]);
 
     useEffect(() => {
@@ -344,7 +368,7 @@ const Home = () => {
                                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M19.0339 17.3699C19.0233 17.5685 19.0148 17.6999 19.2119 17.7977C19.3569 17.8728 19.4516 18.0187 19.4611 18.1817C19.4707 18.3446 19.3937 18.5006 19.2585 18.5921C19.1626 18.6452 19.1103 18.7528 19.1278 18.861C19.2439 20.4033 19.3417 21.9479 19.4762 23.4886C19.4855 24.1551 19.3497 24.8156 19.0782 25.4243C19.0621 25.4709 19.0018 25.5007 18.9621 25.5405C18.9285 25.5046 18.8773 25.4748 18.8628 25.4328C18.5823 24.7884 18.4499 24.0893 18.4755 23.387C18.6138 22.0403 18.6756 20.6852 18.7696 19.3339C18.7772 19.2231 18.7925 19.1131 18.8017 19.0023C18.8483 18.8319 18.7837 18.6504 18.6398 18.5478C18.5202 18.4483 18.4604 18.2942 18.4815 18.1401C18.5026 17.986 18.6017 17.8537 18.7437 17.79C18.943 17.7014 18.9101 17.5418 18.9193 17.4081C18.9193 17.3531 18.7925 17.2759 18.7107 17.2332C18.5282 17.1369 18.3288 17.0728 18.1531 16.9643C17.8613 16.7809 17.859 16.5059 18.1577 16.3341C18.4302 16.1872 18.7107 16.0558 18.9979 15.9407C21.3629 14.915 23.7287 13.8909 26.0952 12.8683C26.7987 12.5484 27.6058 12.5468 28.3105 12.8637C30.8869 13.9775 33.4627 15.0917 36.038 16.2065C36.2427 16.2951 36.481 16.3883 36.4781 16.6511C36.4751 16.9139 36.2382 17.0017 36.0327 17.0911C35.2061 17.4501 34.3804 17.8099 33.5508 18.1605C33.4218 18.1962 33.3383 18.321 33.3544 18.4539C33.3644 19.1796 33.34 19.9053 33.3682 20.6309C33.4077 20.9225 33.4733 21.2099 33.5645 21.4896C33.9947 23.4295 33.6204 25.4609 32.5271 27.1202C31.7538 28.4787 30.5373 29.5305 29.0812 30.0994C27.2558 30.8139 25.1844 30.4532 23.708 29.1636C22.0606 27.874 20.9897 25.9854 20.7289 23.9096C20.5884 22.9232 20.6803 21.9178 20.997 20.9732C21.0377 20.8475 21.0593 20.7165 21.0611 20.5844C21.0673 19.8732 21.0611 19.162 21.0673 18.4508C21.087 18.3257 21.0108 18.2054 20.8893 18.1697C20.2821 17.9161 19.6756 17.6464 19.0339 17.3699Z" fill="#DD50F2" />
                                                 </svg>
                                                 <h4 className="text-000000 fw-semibold fs-22 mt-2">Competition</h4>
-                                                <h5 className="text-434343 text-normal fs-18 mb-0">Lorem Ipsum is simply dummy text of the printing and typesetting industry</h5>
+                                                <h5 className="text-434343 text-normal fs-18 mb-0"></h5>
                                             </div>
                                         </div>
                                     </Link>

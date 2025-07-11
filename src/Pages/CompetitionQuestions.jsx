@@ -23,6 +23,46 @@ const CompetitionQuestions = () => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [correctAnswerShown, setCorrectAnswerShown] = useState(null); // To show correct answer in modal
 
+
+    useEffect(() => {
+        const settingsRef = ref(database, 'questions/settings');
+
+        // 1. Initial fetch of current settings
+        const fetchInitialSettings = onValue(settingsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            if (data.competition_start == 1 && data.competition_end != 1) {
+                setExamStarted(true);
+            }
+
+            if (data.competition_end == 1) {
+                setExamStarted(false);
+            }
+        });
+
+        // 2. Listen for changes
+        const unsubscribe = onChildChanged(settingsRef, (snapshot) => {
+            const key = snapshot.key;
+            const value = snapshot.val();
+
+            if (key === 'competition_start' && value == 1) {
+                setExamStarted(true);
+            }
+
+            if (key === 'competition_end' && value == 1) {
+                setExamStarted(false);
+            }
+        });
+
+        // Cleanup
+        return () => {
+            fetchInitialSettings(); // unsubscribe from onValue
+            unsubscribe(); // unsubscribe from onChildChanged
+        };
+    }, []);
+
+
     useEffect(() => {
         const dbRef = ref(database, 'users');
         const unsubscribe = onValue(dbRef, (snapshot) => {
@@ -56,25 +96,6 @@ const CompetitionQuestions = () => {
     }, []);
 
 
-    useEffect(() => {
-        const settingsRef = ref(database, 'questions/settings');
-
-        const unsubscribe = onChildChanged(settingsRef, (snapshot) => {
-            const key = snapshot.key;
-            const value = snapshot.val();
-            console.log(`🔥 Changed: ${key} =>`, value);
-
-            if (key === 'competition_start' && value == 1) {
-                setExamStarted(true);
-            }
-
-            if (key === 'competition_end' && value == 1) {
-                setShowSuccessModal(true);
-            }
-        });
-
-        return () => unsubscribe();
-    }, []);
 
 
 
@@ -259,7 +280,7 @@ const CompetitionQuestions = () => {
                                                                         Submit
                                                                     </button> : ''}
 
-
+                                                                    {JSON.stringify(item)}
 
                                                                     {feedback[item.id] && (
                                                                         <div className="mt-2">

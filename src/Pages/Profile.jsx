@@ -11,6 +11,9 @@ const Profile = () => {
     const [data, setData] = useState();
     const [status, setStatus] = useState('');
     const [previewOpen, setPreviewOpen] = useState(false);
+    const user = sessionStorage.getItem('data');
+    const student_id = JSON.parse(user);
+    const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
 
     const getData = async () => {
         try {
@@ -89,12 +92,70 @@ const Profile = () => {
         }
     };
 
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
+    };
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!formData.password || !formData.confirmPassword) {
+            alert('Please fill in both password fields.');
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
+        try {
+            const bodyFormData = new FormData();
+            bodyFormData.append('student_id', student_id.student_id);
+            bodyFormData.append('password', formData.password);
+
+            const response = await fetch(`${URL}/listeningStudentChangePassword`, {
+                method: 'POST',
+                body: bodyFormData
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'true') {
+                alert('Password changed successfully!');
+
+                // 🔐 Clear session/local storage
+                sessionStorage.clear();
+                localStorage.clear(); // in case used
+
+                // Optional: Remove cookies if needed (basic example)
+                // document.cookie.split(";").forEach((c) => {
+                //     document.cookie = c
+                //         .replace(/^ +/, "")
+                //         .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                // });
+
+                // 🔁 Redirect to login page
+                navigate('/login');
+            } else {
+                alert(data.message || 'Password change failed.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+        }
+    };
+
+
     return (
         <>
             <div className="main-container bg-theme profile-page">
 
 
-                <Header data={{ title: '', detail: 'Profile', description: '' ,}} />
+                <Header data={{ title: '', detail: 'Profile', description: '', }} />
                 <div className="container-fluid">
                     <div className="container py-5">
                         <div className="row g-4">
@@ -246,33 +307,52 @@ const Profile = () => {
                             </div>
 
                             {/* Change Password Card */}
-                            <div className="col-lg-6">
-                                <div className="card shadow-sm border-0">
-                                    <div className="card-header p-3 custom-gradient text-white">
-                                        <h3 className="h5 mb-0 d-flex align-items-center gap-2">
-                                            <div className="p-2 bg-white bg-opacity-25 rounded">
-                                                <i className="bi bi-lock-fill"></i>
+                            <form className="col-lg-6" onSubmit={handleSubmit}>
+                                <div >
+                                    <div className="card shadow-sm border-0">
+                                        <div className="card-header p-3 custom-gradient text-white">
+                                            <h3 className="h5 mb-0 d-flex align-items-center gap-2">
+                                                <div className="p-2 bg-white bg-opacity-25 rounded">
+                                                    <i className="bi bi-lock-fill"></i>
+                                                </div>
+                                                CHANGE PASSWORD
+                                            </h3>
+                                        </div>
+                                        <div className="card-body">
+                                            <div className="mb-3">
+                                                <label htmlFor="password" className="form-label fs-5 fw-semibold text-dark">
+                                                    <i className="bi bi-key-fill text-primary me-1"></i> Enter your new password:
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control shadow-none"
+                                                    id="password"
+                                                    placeholder="Enter new password"
+                                                    value={formData.password}
+                                                    onChange={handleChange}
+                                                />
                                             </div>
-                                            CHANGE PASSWORD
-                                        </h3>
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="mb-3">
-                                            <label htmlFor="newPassword" className="form-label fs-5 fw-semibold text-dark">
-                                                <i className="bi bi-key-fill text-primary me-1"></i> Enter your new password:
-                                            </label>
-                                            <input type="password" className="form-control shadow-none" id="newPassword" placeholder="Enter new password" />
+                                            <div className="mb-3">
+                                                <label htmlFor="confirmPassword" className="form-label fs-5 fw-semibold text-dark">
+                                                    <i className="bi bi-key-fill text-primary me-1"></i> Confirm your password:
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    className="form-control shadow-none"
+                                                    id="confirmPassword"
+                                                    placeholder="Enter password"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
+                                            <button type="submit" className="btn btn-green rounded-pill py-2 w-100 fw-semibold">
+                                                Change Password
+                                            </button>
                                         </div>
-                                        <div className="mb-3">
-                                            <label htmlFor="newPassword" className="form-label fs-5 fw-semibold text-dark">
-                                                <i className="bi bi-key-fill text-primary me-1"></i> Confirm your password:
-                                            </label>
-                                            <input type="password" className="form-control shadow-none" id="newPassword1" placeholder="Enter password" />
-                                        </div>
-                                        <button className="btn btn-green rounded-pill py-2 w-100 fw-semibold">Change Password</button>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
+
                         </div>
                     </div>
                 </div>
