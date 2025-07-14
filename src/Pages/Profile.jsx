@@ -50,9 +50,6 @@ const Profile = () => {
         const parsedData = rawData ? JSON.parse(rawData) : {};
         const student_id = parsedData?.student_id;
 
-
-        console.log(student_id);
-
         if (!file || !student_id) return setStatus('❌ No file or ID.');
 
         setStatus('⏳ Uploading...');

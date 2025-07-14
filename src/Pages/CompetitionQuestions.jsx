@@ -280,7 +280,7 @@ const CompetitionQuestions = () => {
                                                                         Submit
                                                                     </button> : ''}
 
-                                                                    {JSON.stringify(item)}
+
 
                                                                     {feedback[item.id] && (
                                                                         <div className="mt-2">
