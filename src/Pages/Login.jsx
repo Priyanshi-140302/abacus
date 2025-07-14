@@ -142,7 +142,7 @@ const Login = () => {
                         )}
                       </div>
 
-                      <div className="mb-5 form-check">
+                      {/* <div className="mb-5 form-check">
                         <input
                           type="checkbox"
                           className="form-check-input border-2 border-danger shadow-none me-2"
@@ -154,7 +154,7 @@ const Login = () => {
                         >
                           Remember me
                         </label>
-                      </div>
+                      </div> */}
                       <button
                         id="login-btn"
                         type="button"

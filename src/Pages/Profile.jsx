@@ -77,8 +77,8 @@ const Profile = () => {
                 setData(updatedDetail);
                 sessionStorage.setItem('data', JSON.stringify(updatedDetail)); // optional
                 setStatus('✅ Uploaded!');
-                location.reload();
-
+                // location.reload();
+                getData();
             }
             else {
                 setStatus(`❌ Error: ${result.message || 'Upload failed'}`);
