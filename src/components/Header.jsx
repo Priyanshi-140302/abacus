@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 const URL = import.meta.env.VITE_URL;
 import { Link } from 'react-router-dom';
-import profile from '../assets/images/profile.png';
+
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ data }) => {
@@ -21,6 +21,7 @@ const Header = ({ data }) => {
             });
 
             if (response.status === 200) {
+                sessionStorage.setItem("faceReferenceUrl", response.data.imagePath)
                 setDatas(response.data); // Axios auto-parses JSON
             }
         } catch (error) {
@@ -59,7 +60,7 @@ const Header = ({ data }) => {
                             <div className="col-3 text-end">
                                 <div className="dropdown">
                                     <button className="btn profile-btn dropdown-toggle border-0 rounded-circle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        {/* {!datas.imagePath ? <img src={profile} alt="" className="" /> : } */}
+
 
                                         <img src={datas.imagePath} alt="" className="rounded-circle" style={{ width: '55px', height: '55px' }} />
                                         <i className="fa-solid fa-angle-down text-white ms-2 fs-5"></i>

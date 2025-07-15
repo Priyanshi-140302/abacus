@@ -100,8 +100,15 @@ const FaceRecognitionLogin = ({ onSuccess, onCancel }) => {
       return;
     }
 
-    faceapi.matchDimensions(canvas, { width: 320, height: 240 });
-    const resizedResult = faceapi.resizeResults(liveResult, { width: 320, height: 240 });
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
+    faceapi.matchDimensions(canvas, { width: videoWidth, height: videoHeight });
+    const resizedResult = faceapi.resizeResults(liveResult, { width: videoWidth, height: videoHeight });
+
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     faceapi.draw.drawDetections(canvas, resizedResult);
@@ -109,14 +116,28 @@ const FaceRecognitionLogin = ({ onSuccess, onCancel }) => {
 
     setStatus('🔄 Loading reference image...');
 
-    let referenceImg;
-    try {
-      referenceImg = await faceapi.fetchImage('/abacus/public/ref4.jpg');
-    } catch (error) {
-      console.error('❌ Image load failed:', error);
-      setStatus('❌ Failed to load reference image.');
+
+    const storedImageUrl = sessionStorage.getItem('faceReferenceUrl');
+    if (!storedImageUrl) {
+      setStatus('❌ No reference image URL in sessionStorage.');
       return;
     }
+
+    let referenceImg = new Image();
+    referenceImg.crossOrigin = 'anonymous';
+    referenceImg.src = storedImageUrl;
+
+    try {
+      await new Promise((resolve, reject) => {
+        referenceImg.onload = resolve;
+        referenceImg.onerror = reject;
+      });
+    } catch (error) {
+      console.error('❌ Image failed to load or cross-origin blocked:', error);
+      setStatus('❌ Failed to load reference image from session.');
+      return;
+    }
+
 
     const referenceResult = await faceapi
       .detectSingleFace(referenceImg, options)
@@ -148,16 +169,27 @@ const FaceRecognitionLogin = ({ onSuccess, onCancel }) => {
         autoPlay
         muted
         playsInline
-        width="320"
-        height="240"
-        style={{ border: '2px solid #fff', borderRadius: 10, background: '#000' }}
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          border: '2px solid #fff',
+          borderRadius: 10,
+          background: '#000',
+        }}
       />
+
       <canvas
         ref={canvasRef}
-        width="320"
-        height="240"
-        style={{ position: 'absolute', top: 90, left: '50%', transform: 'translateX(-50%)' }}
+        style={{
+          position: 'absolute',
+          top: 90,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '480px',
+        }}
       />
+
       <p className="mt-3">{status}</p>
       <div className="d-flex justify-content-center gap-3 mt-3">
         <button className="btn btn-success" onClick={handleFaceScan}>Scan Face</button>
