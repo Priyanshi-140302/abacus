@@ -9,31 +9,79 @@ const Header = ({ data }) => {
     const navigate = useNavigate();
     const [datas, setDatas] = useState('');
 
-    const getData = async () => {
-        try {
-            const token = sessionStorage.getItem('token');
+    // const getData = async () => {
+    //     try {
+    //         const token = sessionStorage.getItem('token');
 
-            const response = await axios.get(`${URL}/user`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+    //         const response = await axios.get(`${URL}/user`, {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
 
-            if (response.status === 200) {
-                sessionStorage.setItem("faceReferenceUrl", response.data.imagePath)
-                setDatas(response.data); // Axios auto-parses JSON
-            }
-        } catch (error) {
-            if (error.response?.status === 401) {
-                alert("Login in other device");
-                sessionStorage.removeItem("token");
-                window.location.href = "/listening/"; // or your login route
-            } else {
-                console.error('Error fetching data:', error);
-            }
-        }
-    };
+    //         if (response.status === 200) {
+    //             sessionStorage.setItem("faceReferenceUrl", response.data.imagePath)
+    //             setDatas(response.data); // Axios auto-parses JSON
+    //         }
+    //     } catch (error) {
+    //         if (error.response?.status === 401) {
+    //             alert("Login in other device");
+    //             sessionStorage.removeItem("token");
+    //             window.location.href = "/listening/"; // or your login route
+    //         } else {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     }
+    // };
+
+
+const getData = async () => {
+  try {
+    const token = sessionStorage.getItem('token');
+
+    const response = await axios.get(`${URL}/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 200) {
+      setDatas(response.data);
+
+      const imageUrl = response.data.imagePath;
+
+      // ✅ Convert image to base64 and store in sessionStorage
+      const imageResponse = await fetch(imageUrl, {
+        mode: 'cors' // You need this if the image URL is cross-origin
+      });
+
+      if (!imageResponse.ok) {
+        throw new Error("Failed to fetch image");
+      }
+
+      const blob = await imageResponse.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        sessionStorage.setItem("faceReferenceBase64", base64data); // ✅ Save as base64
+      };
+
+      reader.readAsDataURL(blob);
+    }
+  } catch (error) {
+    if (error.response?.status === 401) {
+      alert("Login in other device");
+      sessionStorage.removeItem("token");
+      window.location.href = "/listening/";
+    } else {
+      console.error("Error fetching data:", error);
+    }
+  }
+};
+
 
     useEffect(() => {
         getData();
